@@ -1,12 +1,84 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Users, Calendar, Stethoscope, FileText,
-  BarChart3, Settings, Home, ChevronLeft, ChevronRight, LogOut
+  BarChart3, Settings, Home, ChevronLeft, ChevronRight, LogOut,
+  User, UserPlus, CreditCard, Star, HelpCircle
 } from "lucide-react";
-import { sidebarItems } from "./sidebarItems";
+import { useAuthStore } from "../store/authStore";
+import { logoutUser } from "../api/auth";
 
 export default function Sidebar({ collapsed, setCollapsed }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, hasRole } = useAuthStore();
+
+  // Configurar items del sidebar según el rol
+  const getSidebarItems = () => {
+    const basePath = hasRole(1) ? '/admin' : 
+                    hasRole(2) ? '/terapeuta' : 
+                    hasRole(3) ? '/recepcionista' : '/paciente';
+
+    const commonItems = [
+      { title: "Inicio", icon: Home, path: basePath }
+    ];
+
+    if (hasRole(1)) { // Administrador
+      return [
+        ...commonItems,
+        { title: "Usuarios", icon: Users, path: `${basePath}/usuarios` },
+        { title: "Pacientes", icon: User, path: `${basePath}/pacientes` },
+        { title: "Citas", icon: Calendar, path: `${basePath}/citas` }
+      ];
+    } else if (hasRole(2)) { // Terapeuta
+      return [
+        ...commonItems,
+        { title: "Mis Citas", icon: Calendar, path: `${basePath}/citas` }
+      ];
+    } else if (hasRole(3)) { // Recepcionista
+      return [
+        ...commonItems,
+        { title: "Pacientes", icon: User, path: `${basePath}/pacientes` },
+        { title: "Citas", icon: Calendar, path: `${basePath}/citas` }
+      ];
+    } else if (hasRole(4)) { // Paciente
+      return [
+        ...commonItems,
+        { title: "Mis Citas", icon: Calendar, path: `${basePath}/mis-citas` },
+        { title: "Agendar Cita", icon: UserPlus, path: `${basePath}/agendar-cita` },
+        { title: "Mi Perfil", icon: User, path: `${basePath}/perfil` },
+        { title: "Historial Médico", icon: FileText, path: `${basePath}/historial` },
+        { title: "Pagos y Facturación", icon: CreditCard, path: `${basePath}/pagos` },
+        { title: "Encuestas de Satisfacción", icon: Star, path: `${basePath}/encuestas` },
+        { title: "Ayuda / Soporte", icon: HelpCircle, path: `${basePath}/ayuda` }
+      ];
+    }
+
+    return commonItems;
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      logout();
+      navigate('/login');
+    }
+  };
+
+  const sidebarItems = getSidebarItems();
+
+  const getRoleName = (rolId) => {
+    switch (rolId) {
+      case 1: return 'Administrador';
+      case 2: return 'Terapeuta';
+      case 3: return 'Recepcionista';
+      case 4: return 'Paciente';
+      default: return 'Usuario';
+    }
+  };
 
   return (
     <div className={`fixed inset-y-0 left-0 z-50 ${collapsed ? 'w-20' : 'w-64'} bg-white/80 border-r border-white/20 shadow-xl transition-all duration-300`}>
@@ -53,17 +125,22 @@ export default function Sidebar({ collapsed, setCollapsed }) {
         <div className="p-4 border-t border-white/20">
           <div className={`flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 transition-colors ${collapsed ? 'justify-center' : ''}`}>
             <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-              DR
+              {user?.nombre?.charAt(0)?.toUpperCase() || 'U'}
             </div>
             {!collapsed && (
               <div className="flex-1">
-                <p className="text-sm font-medium text-slate-800">Dr. Rodriguez</p>
-                <p className="text-xs text-slate-600">Administrador</p>
+                <p className="text-sm font-medium text-slate-800">
+                  {user?.nombre} {user?.apellido_paterno}
+                </p>
+                <p className="text-xs text-slate-600">{getRoleName(user?.rol_id)}</p>
               </div>
             )}
           </div>
           {!collapsed && (
-            <button className="w-full flex items-center gap-3 px-3 py-2 mt-2 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors">
+            <button 
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2 mt-2 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+            >
               <LogOut className="w-4 h-4" />
               <span className="text-sm font-medium">Cerrar Sesión</span>
             </button>

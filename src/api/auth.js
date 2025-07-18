@@ -1,43 +1,54 @@
-// Iniciar sesión y obtener token\export async function loginUser(email, password) {
-export async function loginUser(email, password) {
-  const response = await fetch('http://localhost:8000/api/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),
-  });
+import api from '../services/api';
 
-  const data = await response.json();
+// Iniciar sesión y obtener token
+export async function loginUser(correoElectronico, contraseña) {
+  try {
+    const response = await api.post('/login', {
+      correo_electronico: correoElectronico,
+      contraseña: contraseña,
+    });
 
-  if (!response.ok) {
-    throw new Error(data.message || 'Credenciales inválidas');
+    const { usuario, token } = response.data;
+
+    // Guardar en localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(usuario));
+
+    return { usuario, token };
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al iniciar sesión');
   }
-
-  return data;
 }
 
+// Registrar nuevo usuario
+export async function registerUser(userData) {
+  try {
+    const response = await api.post('/register', userData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al registrar usuario');
+  }
+}
 
-// Obtener usuario autenticado (requiere token en localStorage)
+// Obtener usuario autenticado
 export async function getAuthenticatedUser() {
-  const token = localStorage.getItem('token');
-  if (!token) throw new Error('No autenticado');
-
-  const response = await fetch('http://localhost:8000/api/user-authenticated', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || 'Error al obtener el usuario');
+  try {
+    const response = await api.get('/user');
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al obtener el usuario');
   }
-
-  return data.user;
 }
 
-// Cerrar sesión (elimina el token)
-export function logoutUser() {
-  localStorage.removeItem('token');
+// Cerrar sesión
+export async function logoutUser() {
+  try {
+    await api.post('/logout');
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+  } finally {
+    // Limpiar localStorage independientemente del resultado
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  }
 }
