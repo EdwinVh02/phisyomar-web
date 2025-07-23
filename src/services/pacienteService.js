@@ -3,12 +3,37 @@ import api from './api';
 // Obtener todos los pacientes
 export const getPacientes = async () => {
   try {
-    const response = await api.get('/pacientes');
-    console.log('Respuesta del servidor:', response.data);
-    // Verificar si la respuesta es un array directamente o está en data
-    return Array.isArray(response.data) ? response.data : response.data.data;
+    console.log('📡 Enviando petición GET a /pacientes?all=true...');
+    const response = await api.get('/pacientes?all=true');
+    console.log('📨 Respuesta completa del servidor:', response);
+    console.log('📊 Datos de la respuesta:', response.data);
+    console.log('🔍 Status de la respuesta:', response.status);
+    
+    // Para respuestas paginadas de Laravel, los datos están en response.data.data
+    // Para respuestas directas, los datos están en response.data
+    let data;
+    
+    if (Array.isArray(response.data)) {
+      // Respuesta directa (array)
+      data = response.data;
+    } else if (response.data && Array.isArray(response.data.data)) {
+      // Respuesta paginada de Laravel
+      data = response.data.data;
+    } else {
+      console.warn('⚠️ Estructura de respuesta inesperada:', response.data);
+      data = [];
+    }
+    
+    console.log('✅ Datos procesados para retornar:', data);
+    console.log('📋 Número de pacientes:', data.length);
+    
+    return data;
   } catch (error) {
-    console.error('Error al obtener pacientes:', error);
+    console.error('❌ Error completo al obtener pacientes:', error);
+    console.error('❌ Respuesta del error:', error.response);
+    console.error('❌ Estado del error:', error.response?.status);
+    console.error('❌ Datos del error:', error.response?.data);
+    
     throw new Error(error.response?.data?.message || 'Error al obtener pacientes');
   }
 };

@@ -92,3 +92,64 @@ export const getEstadisticasTerapeuta = async () => {
     throw new Error(error.response?.data?.message || 'Error al obtener estadísticas');
   }
 };
+
+// Servicios adicionales para dashboard avanzado
+export const getPacienteDetalle = async (id) => {
+  try {
+    const response = await api.get(`/pacientes/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al obtener detalle del paciente');
+  }
+};
+
+export const getCitaDetalle = async (id) => {
+  try {
+    const response = await api.get(`/citas/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al obtener detalle de la cita');
+  }
+};
+
+export const actualizarEstadoCita = async (id, estado, notas = '') => {
+  try {
+    const response = await api.put(`/citas/${id}`, { 
+      estado,
+      notas_terapeuta: notas
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al actualizar estado de la cita');
+  }
+};
+
+export const crearNotaPaciente = async (pacienteId, nota) => {
+  try {
+    const response = await api.post(`/terapeuta/pacientes/${pacienteId}/notas`, {
+      nota: nota
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al crear nota del paciente');
+  }
+};
+
+// Servicios para historial médico
+export const crearHistorialMedico = async (pacienteId, datosHistorial) => {
+  try {
+    const response = await api.post(`/terapeuta/pacientes/${pacienteId}/historial-medico`, datosHistorial);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al crear historial médico');
+  }
+};
+
+export const agregarRegistroHistorial = async (pacienteId, registro) => {
+  try {
+    const response = await api.post(`/terapeuta/pacientes/${pacienteId}/registros`, registro);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al agregar registro al historial');
+  }
+};

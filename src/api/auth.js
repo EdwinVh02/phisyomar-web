@@ -5,7 +5,7 @@ export async function loginUser(correoElectronico, contraseña) {
   try {
     const response = await api.post('/login', {
       correo_electronico: correoElectronico,
-      contraseña: contraseña,
+      password: contraseña,
     });
 
     const { usuario, token } = response.data;

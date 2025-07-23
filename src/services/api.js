@@ -32,9 +32,10 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
-      // Solo redirigir si no estamos ya en login o register
+      // Solo redirigir si no estamos en páginas públicas (home, login, register)
       const currentPath = window.location.pathname;
-      if (currentPath !== '/login' && currentPath !== '/register') {
+      const publicPaths = ['/', '/login', '/register', '/registrar'];
+      if (!publicPaths.includes(currentPath)) {
         window.location.href = '/login';
       }
     }

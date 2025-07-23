@@ -1,5 +1,5 @@
 // src/pages/UsuariosPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Users, 
   Search, 
@@ -16,6 +16,7 @@ import {
   Eye,
   Download
 } from "lucide-react";
+import { getUsuarios } from '../services';
 
 const usuariosMock = [
   { 
@@ -64,8 +65,63 @@ export default function UsuariosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("todos");
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const filteredUsers = usuariosMock.filter(user => {
+  useEffect(() => {
+    fetchUsuarios();
+  }, []);
+
+  const fetchUsuarios = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log('🔄 Cargando usuarios desde la API...');
+      const data = await getUsuarios();
+      console.log('✅ Datos recibidos del backend:', data);
+      
+      // Verificar que data sea un array
+      if (!Array.isArray(data)) {
+        console.warn('⚠️ La respuesta no es un array:', data);
+        throw new Error('La respuesta del servidor no es válida');
+      }
+      
+      // Transformar los datos del backend al formato esperado por la UI
+      const usuariosFormateados = data.map(usuario => ({
+        id: usuario.id,
+        nombre: `${usuario.nombre || ''} ${usuario.apellido_paterno || ''} ${usuario.apellido_materno || ''}`.trim(),
+        correo: usuario.correo_electronico || 'Sin email',
+        telefono: usuario.telefono || 'N/A',
+        fechaRegistro: usuario.created_at ? new Date(usuario.created_at).toISOString().split('T')[0] : 'N/A',
+        status: usuario.deleted_at ? 'inactivo' : 'activo',
+        avatar: `${(usuario.nombre?.charAt(0) || 'U')}${(usuario.apellido_paterno?.charAt(0) || '')}`.toUpperCase(),
+        ultimaVisita: usuario.updated_at ? new Date(usuario.updated_at).toISOString().split('T')[0] : 'N/A',
+        rol_id: usuario.rol_id
+      }));
+      
+      console.log('✅ Usuarios formateados:', usuariosFormateados);
+      setUsuarios(usuariosFormateados);
+      
+    } catch (err) {
+      console.error('❌ Error al cargar usuarios:', err);
+      setError(err.message);
+      
+      // Solo usar fallback si hay un error real, no si simplemente no hay datos
+      if (err.message.includes('Network Error') || err.message.includes('500') || err.message.includes('403')) {
+        console.log('⚠️ Usando datos mock como fallback debido a error de red/servidor');
+        setUsuarios(usuariosMock);
+      } else {
+        // Para otros errores (como 401 Unauthorized), no mostrar datos mock
+        setUsuarios([]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredUsers = usuarios.filter(user => {
     const matchesSearch = user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.correo.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === "todos" || user.status === filterStatus;
@@ -105,6 +161,35 @@ export default function UsuariosPage() {
       setSelectedUsers(filteredUsers.map(user => user.id));
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando usuarios...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && usuarios.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-8 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error al cargar usuarios</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={fetchUsuarios}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-8">

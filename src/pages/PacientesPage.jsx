@@ -23,11 +23,20 @@ export default function PacientesPage() {
     telefono_emergencia: ''
   });
 
+  console.log('🔍 Estado actual de pacientes:', { 
+    totalPacientes: pacientes.length, 
+    loading, 
+    error,
+    pacientes: pacientes.slice(0, 3) // Solo los primeros 3 para debug
+  });
+
   const pacientesFiltrados = pacientes.filter(paciente => {
-    const nombre = `${paciente.usuario?.nombre} ${paciente.usuario?.apellido_paterno} ${paciente.usuario?.apellido_materno}`.toLowerCase();
+    const nombre = `${paciente.usuario?.nombre || ''} ${paciente.usuario?.apellido_paterno || ''} ${paciente.usuario?.apellido_materno || ''}`.toLowerCase();
     const email = paciente.usuario?.correo_electronico?.toLowerCase() || '';
     return nombre.includes(searchTerm.toLowerCase()) || email.includes(searchTerm.toLowerCase());
   });
+
+  console.log('📊 Pacientes filtrados:', pacientesFiltrados.length);
 
   const handleCrearPaciente = () => {
     setPacienteEditando(null);
@@ -186,7 +195,34 @@ export default function PacientesPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {pacientesFiltrados.map((paciente) => (
+              {pacientesFiltrados.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-12 text-center">
+                    <div className="text-gray-500">
+                      <div className="text-6xl mb-4">👥</div>
+                      <h3 className="text-lg font-medium mb-2">
+                        {searchTerm ? 'No se encontraron pacientes' : 'No hay pacientes registrados'}
+                      </h3>
+                      <p className="mb-4">
+                        {searchTerm 
+                          ? `No hay pacientes que coincidan con "${searchTerm}"` 
+                          : 'Comienza agregando tu primer paciente al sistema'
+                        }
+                      </p>
+                      {!searchTerm && (
+                        <button
+                          onClick={handleCrearPaciente}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg inline-flex items-center gap-2"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Crear primer paciente
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                pacientesFiltrados.map((paciente) => (
                 <tr key={paciente.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -236,7 +272,8 @@ export default function PacientesPage() {
                     </button>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
