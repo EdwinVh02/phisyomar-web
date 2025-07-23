@@ -93,7 +93,11 @@ export default function PacientesPage() {
     e.preventDefault();
     try {
       if (pacienteEditando) {
-        await actualizar(pacienteEditando.id, formData);
+        const dataToSend = { ...formData, usuario: { ...formData.usuario } };
+        if (!dataToSend.usuario.contraseña) {
+          delete dataToSend.usuario.contraseña;
+        }
+        await actualizar(pacienteEditando.id, dataToSend);
         alert("Paciente actualizado exitosamente");
       } else {
         await crear(formData);
