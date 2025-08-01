@@ -10,18 +10,26 @@ export function usePacientes() {
     setLoading(true);
     setError(null);
     try {
-      console.log('🔄 Cargando pacientes desde la API...');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 Cargando pacientes desde la API...');
+      }
       const data = await getPacientes();
-      console.log('✅ Datos de pacientes recibidos:', data);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Datos de pacientes recibidos:', data);
+      }
       
       // Verificar que data sea un array
       if (!Array.isArray(data)) {
-        console.warn('⚠️ La respuesta no es un array:', data);
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('⚠️ La respuesta no es un array:', data);
+        }
         throw new Error('La respuesta del servidor no es válida para pacientes');
       }
       
       setPacientes(data);
-      console.log('✅ Pacientes establecidos en el estado:', data.length, 'pacientes');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Pacientes establecidos en el estado:', data.length, 'pacientes');
+      }
       
     } catch (err) {
       console.error('❌ Error al cargar pacientes:', err);

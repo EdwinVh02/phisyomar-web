@@ -1,41 +1,46 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
 import PublicLayout from "../layouts/PublicLayout";
 import LoginPage from "../pages/Login";
 import AdminDashboard from "../pages/AdminDashboard";
-import DashboardHomePage from "../pages/DashboardHomePage";
-import AdminHomePage from "../pages/AdminHomePage";
-import TerapeutaHomePage from "../pages/TerapeutaHomePage";
-import TerapeutaCitas from "../pages/TerapeutaCitas";
-import RecepcionistaHomePage from "../pages/RecepcionistaHomePage";
-import UsuariosPage from "../pages/UsuariosPage";
-import PacientesPage from "../pages/PacientesPage";
-import TerapeutasPage from "../pages/TerapeutasPage";
-import RecepcionistasPage from "../pages/RecepcionistasPage";
-import ClinicasPage from "../pages/ClinicasPage";
-import EstadisticasPage from "../pages/EstadisticasPage";
-import PagosPage from "../pages/PagosPage";
-import HistorialesPage from "../pages/HistorialesPage";
-import BitacorasPage from "../pages/BitacorasPage";
-import DatabasePage from "../pages/DatabasePage";
-import ConfiguracionPage from "../pages/ConfiguracionPage";
-import CitasPage from "../pages/Citas";
-import RegistrarPage from "../pages/Registrar";
 import HomePage from "../pages/HomePage";
-import Agendarcita from "../pages/AgendarCitaPaciente";
-import MisCitasPage from "../pages/MisCitas";
-import PerfilPaciente from "../pages/PerfilPaciente";
-import DetalleCita from "../pages/DetalleCita";
-import HistorialMedico from "../pages/HistorialMedico";
-import PagosFacturacion from "../pages/PagosFacturacion";
-import EncuestasSatisfaccion from "../pages/EncuestasSatisfaccion";
-import AyudaSoporte from "../pages/AyudaSoporte";
 import UnauthorizedPage from "../pages/Unauthorized";
 import ProtectedRoute from "../components/ProtectedRoute";
+
+// Lazy loading de páginas principales
+const DashboardHomePage = lazy(() => import("../pages/DashboardHomePage"));
+const AdminHomePage = lazy(() => import("../pages/AdminHomePage"));
+const TerapeutaHomePage = lazy(() => import("../pages/TerapeutaHomePage"));
+const TerapeutaCitas = lazy(() => import("../pages/TerapeutaCitas"));
+const RecepcionistaHomePage = lazy(() => import("../pages/RecepcionistaHomePage"));
+const UsuariosPage = lazy(() => import("../pages/UsuariosPage"));
+const PacientesPage = lazy(() => import("../pages/PacientesPage"));
+const TerapeutasPage = lazy(() => import("../pages/TerapeutasPage"));
+const RecepcionistasPage = lazy(() => import("../pages/RecepcionistasPage"));
+const ClinicasPage = lazy(() => import("../pages/ClinicasPage"));
+const EstadisticasPage = lazy(() => import("../pages/EstadisticasPage"));
+const PagosPage = lazy(() => import("../pages/PagosPage"));
+const HistorialesPage = lazy(() => import("../pages/HistorialesPage"));
+const BitacorasPage = lazy(() => import("../pages/BitacorasPage"));
+const DatabasePage = lazy(() => import("../pages/DatabasePage"));
+const ConfiguracionPage = lazy(() => import("../pages/ConfiguracionPage"));
+const CitasPage = lazy(() => import("../pages/Citas"));
+const RegistrarPage = lazy(() => import("../pages/Registrar"));
+const Agendarcita = lazy(() => import("../pages/AgendarCitaPaciente"));
+const MisCitasPage = lazy(() => import("../pages/MisCitas"));
+const PerfilPaciente = lazy(() => import("../pages/PerfilPaciente"));
+const DetalleCita = lazy(() => import("../pages/DetalleCita"));
+const HistorialMedico = lazy(() => import("../pages/HistorialMedico"));
+const PagosFacturacion = lazy(() => import("../pages/PagosFacturacion"));
+const EncuestasSatisfaccion = lazy(() => import("../pages/EncuestasSatisfaccion"));
+const AyudaSoporte = lazy(() => import("../pages/AyudaSoporte"));
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <Routes>
+      <Suspense fallback={<LoadingSpinner />}>
+        <Routes>
         {/* Páginas públicas con navbar */}
         <Route element={<PublicLayout />}>
           <Route path="/login" element={<LoginPage />} />
@@ -135,7 +140,8 @@ export default function AppRoutes() {
 
         {/* Ruta por defecto */}
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

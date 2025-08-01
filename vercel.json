@@ -11,6 +11,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://phisyomarv2.onrender.com/api"
+    "VITE_API_URL": "https://phisyomarv2-production.up.railway.app/api"
   }
 }

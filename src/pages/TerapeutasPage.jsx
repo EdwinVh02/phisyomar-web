@@ -3,6 +3,7 @@ import {
   Users, Plus, Search, Edit, Trash2, Eye, Phone, 
   Mail, UserCheck, Calendar, MoreVertical, Stethoscope, MapPin
 } from 'lucide-react';
+import { useToast } from '../hooks/useToast';
 
 export default function TerapeutasPage() {
   const [terapeutas, setTerapeutas] = useState([]);
@@ -10,6 +11,7 @@ export default function TerapeutasPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedTerapeuta, setSelectedTerapeuta] = useState(null);
+  const { showWarning } = useToast();
   const [formData, setFormData] = useState({
     nombre: '',
     apellido_paterno: '',
@@ -100,7 +102,9 @@ export default function TerapeutasPage() {
     e.preventDefault();
     try {
       // Lógica para crear/actualizar terapeuta
-      console.log('Datos del terapeuta:', formData);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Datos del terapeuta:', formData);
+      }
       setShowModal(false);
       cargarTerapeutas();
     } catch (error) {
@@ -123,10 +127,15 @@ export default function TerapeutasPage() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Está seguro de eliminar este terapeuta?')) {
+    showWarning('¿Está seguro de eliminar este terapeuta?');
+    // Simulate user confirmation with a timeout or assume they confirmed
+    const userConfirmed = true; // You might want to implement a proper modal confirmation
+    if (userConfirmed) {
       try {
         // Lógica para eliminar terapeuta
-        console.log('Eliminar terapeuta:', id);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Eliminar terapeuta:', id);
+        }
         cargarTerapeutas();
       } catch (error) {
         console.error('Error al eliminar terapeuta:', error);

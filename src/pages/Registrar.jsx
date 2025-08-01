@@ -14,6 +14,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { registerUsuario } from "../services/usuarioService";
+import { useToast } from "../hooks/useToast";
 
 export default function RegistrarPage() {
   const [form, setForm] = useState({
@@ -37,6 +38,7 @@ export default function RegistrarPage() {
   const [success, setSuccess] = useState(false);
 
   const navigate = useNavigate();
+  const { showSuccess } = useToast();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -51,7 +53,7 @@ export default function RegistrarPage() {
     try {
       await registerUsuario(form);
       setSuccess(true);
-      alert("¡Usuario registrado correctamente!");
+      showSuccess("¡Usuario registrado correctamente!");
       navigate("/login");
     } catch (err) {
       setError(err.message);

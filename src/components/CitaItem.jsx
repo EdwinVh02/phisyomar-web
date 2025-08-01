@@ -1,7 +1,7 @@
 import React from "react";
 import { Eye, XCircle, Clock, CheckCircle2, AlertCircle, Calendar } from "lucide-react";
 
-export default function CitaItem({ cita, zebra, onCancelar, onVerDetalle }) {
+const CitaItem = React.memo(function CitaItem({ cita, zebra, onCancelar, onVerDetalle }) {
   // Formatear fecha y hora desde fecha_hora
   const formatearFechaHora = (fechaHora) => {
     if (!fechaHora) return { fecha: 'N/A', hora: 'N/A' };
@@ -132,4 +132,6 @@ export default function CitaItem({ cita, zebra, onCancelar, onVerDetalle }) {
       </td>
     </tr>
   );
-}
+});
+
+export default CitaItem;

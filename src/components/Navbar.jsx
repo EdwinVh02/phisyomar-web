@@ -1,8 +1,9 @@
 // src/components/Navbar.jsx
+import React from "react";
 import { Link } from "react-router-dom";
 import { Stethoscope } from "lucide-react";
 
-export default function Navbar() {
+const Navbar = React.memo(function Navbar() {
   return (
     <nav className="w-full z-50 bg-white/80 backdrop-blur shadow-lg sticky top-0 flex items-center justify-between px-6 py-4">
       {/* Logo e inicio */}
@@ -32,4 +33,6 @@ export default function Navbar() {
       </div>
     </nav>
   );
-}
+});
+
+export default Navbar;

@@ -62,16 +62,22 @@ export const getMisCitas = async () => {
 
 export const agendarCita = async (citaData) => {
   try {
-    console.log('🚀 Enviando petición a /paciente/agendar-cita');
-    console.log('📋 Datos enviados:', citaData);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🚀 Enviando petición a /paciente/agendar-cita');
+      console.log('📋 Datos enviados:', citaData);
+    }
     
     const response = await api.post('/paciente/agendar-cita', citaData);
-    console.log('✅ Respuesta recibida:', response.data);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Respuesta recibida:', response.data);
+    }
     return response.data;
   } catch (error) {
     console.error('❌ Error en agendarCita:', error);
-    console.error('❌ Error status:', error.response?.status);
-    console.error('❌ Error data:', error.response?.data);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ Error status:', error.response?.status);
+      console.error('❌ Error data:', error.response?.data);
+    }
     throw new Error(error.response?.data?.message || error.message || 'Error al agendar cita');
   }
 };

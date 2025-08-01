@@ -78,13 +78,19 @@ export default function UsuariosPage() {
       setLoading(true);
       setError(null);
       
-      console.log('🔄 Cargando usuarios desde la API...');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 Cargando usuarios desde la API...');
+      }
       const data = await getUsuarios();
-      console.log('✅ Datos recibidos del backend:', data);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Datos recibidos del backend:', data);
+      }
       
       // Verificar que data sea un array
       if (!Array.isArray(data)) {
-        console.warn('⚠️ La respuesta no es un array:', data);
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('⚠️ La respuesta no es un array:', data);
+        }
         throw new Error('La respuesta del servidor no es válida');
       }
       
@@ -101,7 +107,9 @@ export default function UsuariosPage() {
         rol_id: usuario.rol_id
       }));
       
-      console.log('✅ Usuarios formateados:', usuariosFormateados);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Usuarios formateados:', usuariosFormateados);
+      }
       setUsuarios(usuariosFormateados);
       
     } catch (err) {
@@ -110,7 +118,9 @@ export default function UsuariosPage() {
       
       // Solo usar fallback si hay un error real, no si simplemente no hay datos
       if (err.message.includes('Network Error') || err.message.includes('500') || err.message.includes('403')) {
-        console.log('⚠️ Usando datos mock como fallback debido a error de red/servidor');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⚠️ Usando datos mock como fallback debido a error de red/servidor');
+        }
         setUsuarios(usuariosMock);
       } else {
         // Para otros errores (como 401 Unauthorized), no mostrar datos mock

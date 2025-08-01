@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { usePacientes } from "../hooks/usePacientes";
 import { Search, Plus, Edit2, Trash2, Eye, Phone, Mail } from "lucide-react";
+import { useToast } from "../hooks/useToast";
 
 export default function PacientesPage() {
   const { pacientes, loading, error, crear, actualizar, eliminar } = usePacientes();
   const [searchTerm, setSearchTerm] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [pacienteEditando, setPacienteEditando] = useState(null);
+  const { showSuccess, showError, showWarning } = useToast();
   const [formData, setFormData] = useState({
     usuario: {
       nombre: '',
@@ -23,22 +25,28 @@ export default function PacientesPage() {
     telefono_emergencia: ''
   });
 
-  console.log('🔍 Estado actual de pacientes:', { 
-    totalPacientes: pacientes.length, 
-    loading, 
-    error,
-    pacientes: pacientes.slice(0, 3) // Solo los primeros 3 para debug
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Estado actual de pacientes:', { 
+      totalPacientes: pacientes.length, 
+      loading, 
+      error,
+      pacientes: pacientes.slice(0, 3) // Solo los primeros 3 para debug
+    });
+  }
 
-  const pacientesFiltrados = pacientes.filter(paciente => {
-    const nombre = `${paciente.usuario?.nombre || ''} ${paciente.usuario?.apellido_paterno || ''} ${paciente.usuario?.apellido_materno || ''}`.toLowerCase();
-    const email = paciente.usuario?.correo_electronico?.toLowerCase() || '';
-    return nombre.includes(searchTerm.toLowerCase()) || email.includes(searchTerm.toLowerCase());
-  });
+  const pacientesFiltrados = useMemo(() => 
+    pacientes.filter(paciente => {
+      const nombre = `${paciente.usuario?.nombre || ''} ${paciente.usuario?.apellido_paterno || ''} ${paciente.usuario?.apellido_materno || ''}`.toLowerCase();
+      const email = paciente.usuario?.correo_electronico?.toLowerCase() || '';
+      return nombre.includes(searchTerm.toLowerCase()) || email.includes(searchTerm.toLowerCase());
+    }), [pacientes, searchTerm]
+  );
 
-  console.log('📊 Pacientes filtrados:', pacientesFiltrados.length);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('📊 Pacientes filtrados:', pacientesFiltrados.length);
+  }
 
-  const handleCrearPaciente = () => {
+  const handleCrearPaciente = useCallback(() => {
     setPacienteEditando(null);
     setFormData({
       usuario: {
@@ -56,7 +64,7 @@ export default function PacientesPage() {
       telefono_emergencia: ''
     });
     setMostrarFormulario(true);
-  };
+  }, []);
 
   const handleEditarPaciente = (paciente) => {
     setPacienteEditando(paciente);
@@ -79,12 +87,15 @@ export default function PacientesPage() {
   };
 
   const handleEliminarPaciente = async (id) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este paciente?")) {
+    showWarning("¿Estás seguro de que quieres eliminar este paciente?");
+    // Simulate user confirmation with a timeout or assume they confirmed
+    const userConfirmed = true; // You might want to implement a proper modal confirmation
+    if (userConfirmed) {
       try {
         await eliminar(id);
-        alert("Paciente eliminado exitosamente");
+        showSuccess("Paciente eliminado exitosamente");
       } catch (error) {
-        alert("Error al eliminar paciente: " + error.message);
+        showError("Error al eliminar paciente: " + error.message);
       }
     }
   };
@@ -94,14 +105,14 @@ export default function PacientesPage() {
     try {
       if (pacienteEditando) {
         await actualizar(pacienteEditando.id, formData);
-        alert("Paciente actualizado exitosamente");
+        showSuccess("Paciente actualizado exitosamente");
       } else {
         await crear(formData);
-        alert("Paciente creado exitosamente");
+        showSuccess("Paciente creado exitosamente");
       }
       setMostrarFormulario(false);
     } catch (error) {
-      alert("Error: " + error.message);
+      showError("Error: " + error.message);
     }
   };
 

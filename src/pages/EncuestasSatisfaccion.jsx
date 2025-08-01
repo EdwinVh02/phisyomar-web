@@ -17,6 +17,7 @@ import {
   ThumbsDown,
   Calendar
 } from 'lucide-react';
+import { useToast } from '../hooks/useToast';
 
 export default function EncuestasSatisfaccion() {
   const [encuestas, setEncuestas] = useState([]);
@@ -25,6 +26,7 @@ export default function EncuestasSatisfaccion() {
   const [filtroEstado, setFiltroEstado] = useState('');
   const [busqueda, setBusqueda] = useState('');
   const [respuestas, setRespuestas] = useState({});
+  const { showSuccess } = useToast();
 
   // Datos de ejemplo - en producción vendrían de una API
   const encuestasEjemplo = [
@@ -126,7 +128,7 @@ export default function EncuestasSatisfaccion() {
 
   const handleEnviarEncuesta = () => {
     // Simular envío de encuesta
-    alert('Encuesta enviada exitosamente. ¡Gracias por tu retroalimentación!');
+    showSuccess('Encuesta enviada exitosamente. ¡Gracias por tu retroalimentación!');
     setEncuestaActiva(null);
     setRespuestas({});
     

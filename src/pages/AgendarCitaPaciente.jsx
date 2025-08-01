@@ -34,7 +34,9 @@ export default function AgendarCitaPaciente() {
     const cargarTerapeutas = async () => {
       try {
         const data = await getTerapeutasPublico();
-        console.log('Terapeutas cargados:', data);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Terapeutas cargados:', data);
+        }
         setTerapeutas(data);
       } catch (error) {
         console.error('Error al cargar terapeutas:', error);
@@ -62,16 +64,6 @@ export default function AgendarCitaPaciente() {
     setError(null);
     
     try {
-      // Debug: Mostrar información del usuario y token
-      console.log('🔍 Estado de autenticación:', {
-        isAuthenticated,
-        user: user,
-        token: token ? `Token: ${token.substring(0, 20)}...` : 'No token',
-        userRole: user?.rol_id,
-        userName: user?.nombre,
-        userEmail: user?.correo_electronico
-      });
-
       const citaData = {
         ...form,
         duracion: parseInt(form.duracion) || 60,
@@ -79,7 +71,17 @@ export default function AgendarCitaPaciente() {
         escala_dolor_eva_inicio: form.escala_dolor_eva_inicio ? parseInt(form.escala_dolor_eva_inicio) : null
       };
 
-      console.log('📋 Datos de la cita a enviar:', citaData);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 Estado de autenticación:', {
+          isAuthenticated,
+          user: user,
+          token: token ? `Token: ${token.substring(0, 20)}...` : 'No token',
+          userRole: user?.rol_id,
+          userName: user?.nombre,
+          userEmail: user?.correo_electronico
+        });
+        console.log('📋 Datos de la cita a enviar:', citaData);
+      }
 
       await agendarCita(citaData);
       setEnviado(true);

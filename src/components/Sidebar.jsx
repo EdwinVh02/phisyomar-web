@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useMemo, useCallback } from "react";
 import {
   Users, Calendar, Stethoscope, FileText,
   BarChart3, Settings, Home, ChevronLeft, ChevronRight, LogOut,
@@ -74,7 +75,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     return commonItems;
   };
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       await logoutUser();
       logout();
@@ -84,9 +85,9 @@ export default function Sidebar({ collapsed, setCollapsed }) {
       logout();
       navigate('/login');
     }
-  };
+  }, [logout, navigate]);
 
-  const sidebarItems = getSidebarItems();
+  const sidebarItems = useMemo(() => getSidebarItems(), [user?.rol_id]);
 
   const getRoleName = (rolId) => {
     switch (rolId) {

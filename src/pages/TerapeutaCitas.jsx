@@ -2,6 +2,7 @@ import { Calendar, Search, CheckCircle, X, Clock, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getMisCitasTerapeuta } from "../services/citaService";
 import { actualizarEstadoCita } from "../services/terapeutaService";
+import { useToast } from "../hooks/useToast";
 
 export default function TerapeutaCitas() {
   const [search, setSearch] = useState("");
@@ -9,6 +10,7 @@ export default function TerapeutaCitas() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('todas');
+  const { showError } = useToast();
 
   // Cargar citas al montar el componente
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function TerapeutaCitas() {
       await actualizarEstadoCita(citaId, nuevoEstado);
       await cargarCitas(); // Recargar las citas
     } catch (err) {
-      alert('Error al actualizar la cita: ' + err.message);
+      showError('Error al actualizar la cita: ' + err.message);
     }
   };
 

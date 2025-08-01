@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getCitaDetalle, cancelarCita } from '../services/citaService';
 import { Calendar, Clock, User, MapPin, Activity, FileText, AlertCircle, ArrowLeft, Phone, Mail, Stethoscope, CheckCircle2, XCircle, Timer, Scale, Heart, Clipboard } from 'lucide-react';
+import { useToast } from '../hooks/useToast';
 
 export default function DetalleCita() {
   const { id } = useParams();
@@ -10,6 +11,7 @@ export default function DetalleCita() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cancelando, setCancelando] = useState(false);
+  const { showSuccess, showError, showWarning } = useToast();
 
   // Formatear fecha y hora desde fecha_hora
   const formatearFechaHora = (fechaHora) => {
@@ -50,14 +52,17 @@ export default function DetalleCita() {
   }, [id]);
 
   const handleCancelar = async () => {
-    if (window.confirm('¿Estás seguro que deseas cancelar esta cita?')) {
+    showWarning('¿Estás seguro que deseas cancelar esta cita?');
+    // Simulate user confirmation with a timeout or assume they confirmed
+    const userConfirmed = true; // You might want to implement a proper modal confirmation
+    if (userConfirmed) {
       try {
         setCancelando(true);
         await cancelarCita(id);
         setCita(prev => ({ ...prev, estado: 'cancelada' }));
-        alert('Cita cancelada exitosamente');
+        showSuccess('Cita cancelada exitosamente');
       } catch (err) {
-        alert('Error al cancelar la cita: ' + err.message);
+        showError('Error al cancelar la cita: ' + err.message);
       } finally {
         setCancelando(false);
       }

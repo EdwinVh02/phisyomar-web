@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getMisCitas, agendarCita, cancelarCita } from '../services/citaService';
 
 export function useCitas() {
@@ -6,7 +6,9 @@ export function useCitas() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchCitas = async () => {
+  const fetchCitas = useCallback(async () => {
+    if (loading) return; // Evitar llamadas concurrentes
+    
     setLoading(true);
     setError(null);
     try {
@@ -17,9 +19,9 @@ export function useCitas() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading]);
 
-  const crearCita = async (citaData) => {
+  const crearCita = useCallback(async (citaData) => {
     setLoading(true);
     setError(null);
     try {
@@ -32,9 +34,9 @@ export function useCitas() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const cancelar = async (citaId) => {
+  const cancelar = useCallback(async (citaId) => {
     setLoading(true);
     setError(null);
     try {
@@ -50,11 +52,11 @@ export function useCitas() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCitas();
-  }, []);
+  }, [fetchCitas]);
 
   return {
     citas,

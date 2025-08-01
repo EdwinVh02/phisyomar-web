@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Database, Server, HardDrive, Activity, RefreshCw, Download, Upload, Settings } from 'lucide-react';
 import { databaseService } from '../services';
+import { useToast } from '../hooks/useToast';
 
 export default function DatabasePage() {
   const [loading, setLoading] = useState(true);
   const [dbStats, setDbStats] = useState({});
   const [backupHistory, setBackupHistory] = useState([]);
   const [connectionStatus, setConnectionStatus] = useState('connected');
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     fetchDatabaseStats();
@@ -122,14 +124,14 @@ export default function DatabasePage() {
     try {
       const response = await databaseService.createBackup('Backup manual desde interfaz');
       if (response.success) {
-        alert('Backup iniciado exitosamente');
+        showSuccess('Backup iniciado exitosamente');
         fetchBackupHistory(); // Recargar historial
       } else {
-        alert('Error al crear backup: ' + response.error);
+        showError('Error al crear backup: ' + response.error);
       }
     } catch (error) {
       console.error('Error al crear backup:', error);
-      alert('Error al crear backup');
+      showError('Error al crear backup');
     }
   };
 
@@ -137,14 +139,14 @@ export default function DatabasePage() {
     try {
       const response = await databaseService.optimize();
       if (response.success) {
-        alert('Base de datos optimizada exitosamente');
+        showSuccess('Base de datos optimizada exitosamente');
         fetchDatabaseStats(); // Recargar estadísticas
       } else {
-        alert('Error al optimizar base de datos: ' + response.error);
+        showError('Error al optimizar base de datos: ' + response.error);
       }
     } catch (error) {
       console.error('Error al optimizar:', error);
-      alert('Error al optimizar base de datos');
+      showError('Error al optimizar base de datos');
     }
   };
 

@@ -1,7 +1,8 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { Stethoscope, MapPin, Phone, Mail, Clock, Heart } from "lucide-react";
 
-export default function Footer() {
+const Footer = React.memo(function Footer() {
   return (
     <footer className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white">
       <div className="max-w-7xl mx-auto px-6 py-12">
@@ -152,4 +153,6 @@ export default function Footer() {
       </div>
     </footer>
   );
-}
+});
+
+export default Footer;

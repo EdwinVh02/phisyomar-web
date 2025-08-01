@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Settings, Save, Bell, Lock, Mail, Database, Users, Calendar } from 'lucide-react';
 import { configuracionService } from '../services';
+import { useToast } from '../hooks/useToast';
 
 export default function ConfiguracionPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('general');
+  const { showSuccess, showError } = useToast();
   const [configuracion, setConfiguracion] = useState({
     general: {
       nombre_clinica: 'PhisyoMar',
@@ -68,13 +70,13 @@ export default function ConfiguracionPage() {
       const response = await configuracionService.updateByCategory(categoria, configuracion[categoria]);
       
       if (response.success) {
-        alert(`Configuración de ${categoria} guardada exitosamente`);
+        showSuccess(`Configuración de ${categoria} guardada exitosamente`);
       } else {
-        alert('Error al guardar la configuración: ' + response.error);
+        showError('Error al guardar la configuración: ' + response.error);
       }
     } catch (error) {
       console.error('Error al guardar configuración:', error);
-      alert('Error al guardar la configuración');
+      showError('Error al guardar la configuración');
     }
   };
 

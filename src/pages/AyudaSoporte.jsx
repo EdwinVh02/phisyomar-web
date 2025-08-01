@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useToast } from '../hooks/useToast';
 import { 
   HelpCircle, 
   MessageSquare, 
@@ -131,6 +132,7 @@ export default function AyudaSoporte() {
     prioridad: 'media'
   });
   const [enviandoMensaje, setEnviandoMensaje] = useState(false);
+  const { showSuccess } = useToast();
 
   const togglePregunta = (categoria, index) => {
     const key = `${categoria}-${index}`;
@@ -171,7 +173,7 @@ export default function AyudaSoporte() {
     
     // Simular envío de mensaje
     setTimeout(() => {
-      alert('Mensaje enviado exitosamente. Te responderemos pronto.');
+      showSuccess('Mensaje enviado exitosamente. Te responderemos pronto.');
       setMensajeContacto({
         nombre: '',
         email: '',

@@ -2,6 +2,7 @@ import { Calendar, Search, PlusCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getCitas, createCita, updateCita, deleteCita } from "../services/citaService";
 import CitaForm from "../components/CitaForm";
+import { useToast } from "../hooks/useToast";
 
 export default function Citas() {
   const [search, setSearch] = useState("");
@@ -9,6 +10,7 @@ export default function Citas() {
   const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { showSuccess, showError } = useToast();
 
   // Cargar citas al montar el componente
   useEffect(() => {
@@ -38,9 +40,9 @@ export default function Citas() {
       const citaCreada = await createCita(nuevaCita);
       setCitas(prev => [...prev, citaCreada]);
       setMostrarFormulario(false);
-      alert('Cita creada exitosamente');
+      showSuccess('Cita creada exitosamente');
     } catch (error) {
-      alert('Error al crear la cita: ' + error.message);
+      showError('Error al crear la cita: ' + error.message);
     }
   }
 

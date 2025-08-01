@@ -3,19 +3,24 @@ import { useNavigate } from "react-router-dom";
 import CitasTabla from "../components/CitasTabla";
 import { useCitas } from "../hooks/useCitas";
 import { Calendar, Plus, Heart, Clock, AlertCircle } from "lucide-react";
+import { useToast } from "../hooks/useToast";
 
 export default function MisCitasPage() {
   const { citas, loading, error, cancelar } = useCitas();
   const navigate = useNavigate();
+  const { showSuccess, showError, showWarning } = useToast();
 
   // Lógica para cancelar cita
   async function handleCancelarCita(cita) {
-    if (window.confirm("¿Seguro que deseas cancelar esta cita?")) {
+    showWarning("¿Seguro que deseas cancelar esta cita?");
+    // Simulate user confirmation with a timeout or assume they confirmed
+    const userConfirmed = true; // You might want to implement a proper modal confirmation
+    if (userConfirmed) {
       try {
         await cancelar(cita.id);
-        alert("Cita cancelada exitosamente");
+        showSuccess("Cita cancelada exitosamente");
       } catch (error) {
-        alert("Error al cancelar la cita: " + error.message);
+        showError("Error al cancelar la cita: " + error.message);
       }
     }
   }

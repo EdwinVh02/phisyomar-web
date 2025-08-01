@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from './useToast';
 
 const useGoogleAuth = () => {
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const { login } = useAuthStore();
   const navigate = useNavigate();
+  const { showError } = useToast();
 
   useEffect(() => {
     // Verificar si el script de Google se ha cargado
@@ -71,11 +73,11 @@ const useGoogleAuth = () => {
       } else {
         const errorData = await backendResponse.json();
         console.error('Error al autenticar con Google:', errorData);
-        alert('Error al iniciar sesión con Google: ' + (errorData.error || 'Error desconocido'));
+        showError('Error al iniciar sesión con Google: ' + (errorData.error || 'Error desconocido'));
       }
     } catch (error) {
       console.error('Error en Google Sign-In:', error);
-      alert('Error de conexión con Google');
+      showError('Error de conexión con Google');
     }
   };
 

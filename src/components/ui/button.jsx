@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Button = ({ 
+export const Button = React.memo(({ 
   children, 
   variant = 'default', 
   size = 'default', 
@@ -33,4 +33,4 @@ export const Button = ({
       {children}
     </button>
   );
-};
+});

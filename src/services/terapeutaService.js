@@ -22,14 +22,20 @@ export const getTerapeutas = async () => {
 // Obtener terapeutas para pacientes (ruta pública)
 export const getTerapeutasPublico = async () => {
   try {
-    console.log('Haciendo petición a: /terapeutas-publico');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Haciendo petición a: /terapeutas-publico');
+    }
     const response = await api.get('/terapeutas-publico');
-    console.log('Respuesta recibida:', response.data);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Respuesta recibida:', response.data);
+    }
     return response.data;
   } catch (error) {
     console.error('Error completo en getTerapeutasPublico:', error);
-    console.error('Error response:', error.response);
-    console.error('Error message:', error.message);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+    }
     throw new Error(error.response?.data?.message || error.message || 'Error al obtener terapeutas disponibles');
   }
 };
