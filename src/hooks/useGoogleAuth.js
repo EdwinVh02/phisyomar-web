@@ -35,7 +35,7 @@ const useGoogleAuth = () => {
       const credential = response.credential;
       
       // Enviar el token al backend para validación
-      const backendResponse = await fetch('http://localhost:8000/api/auth/google', {
+      const backendResponse = await fetch('https://phisyomarv2-production.up.railway.app/api/auth/google', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
