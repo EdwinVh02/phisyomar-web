@@ -7,19 +7,28 @@ export function useCitas() {
   const [error, setError] = useState(null);
 
   const fetchCitas = useCallback(async () => {
-    if (loading) return; // Evitar llamadas concurrentes
-    
     setLoading(true);
     setError(null);
     try {
+      console.log('🔄 Iniciando carga de citas...');
       const data = await getMisCitas();
-      setCitas(data);
+      setCitas(Array.isArray(data) ? data : []);
+      console.log('✅ Citas cargadas exitosamente:', data);
     } catch (err) {
-      setError(err.message);
+      console.error('❌ Error en useCitas:', err);
+      
+      // Si el error es de conexión o timeout, mostrar datos vacíos en lugar de error
+      if (err.message.includes('Tiempo de espera') || err.message.includes('Network Error')) {
+        console.log('🔄 Error de conexión, mostrando lista vacía');
+        setCitas([]);
+        setError('No se pudieron cargar las citas. Verifica tu conexión.');
+      } else {
+        setError(err.message || 'Error desconocido al cargar citas');
+      }
     } finally {
       setLoading(false);
     }
-  }, [loading]);
+  }, []);
 
   const crearCita = useCallback(async (citaData) => {
     setLoading(true);
@@ -56,7 +65,7 @@ export function useCitas() {
 
   useEffect(() => {
     fetchCitas();
-  }, [fetchCitas]);
+  }, []);
 
   return {
     citas,

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ArrowRight, Star, Play, Menu, X, Heart, Phone, Calendar, CheckCircle, Stethoscope, Award, Clock, MapPin, Activity, Users } from 'lucide-react';
+import { ChevronDown, ArrowRight, Star, Play, Menu, X, Heart, Phone, Calendar, CheckCircle, Stethoscope, Award, Clock, MapPin, Activity, Users, Mail, Shield } from 'lucide-react';
 import { Link } from "react-router-dom";
 import { getTerapeutasPublico } from '../services/terapeutaService';
 import { getEspecialidades } from '../services/especialidadService';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -83,12 +85,12 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-900 text-white overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden relative">
       {/* Modern animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-40 -left-32 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-40 right-20 w-60 h-60 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute -top-40 -right-32 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-40 -left-32 w-80 h-80 bg-blue-300/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-40 right-20 w-60 h-60 bg-white/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
         
         {/* Floating particles */}
         {[...Array(30)].map((_, i) => (
@@ -108,66 +110,10 @@ export default function LandingPage() {
       </div>
       
       {/* Mesh gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-transparent to-purple-600/10 pointer-events-none z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-blue-300/10 pointer-events-none z-0"></div>
 
       {/* Navigation */}
-      <nav className="relative z-50 px-6 py-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link
-            to="/"
-            className="flex items-center gap-3 text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent hover:from-blue-300 hover:to-cyan-200 transition-all duration-300"
-          >
-            <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-xl shadow-lg">
-              <Heart className="w-6 h-6 text-white" />
-            </div>
-            Clínica PhysioMar
-          </Link>
-          
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#inicio" className="text-gray-300 hover:text-white transition-colors duration-300 font-medium relative group">
-              Inicio
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="#servicios" className="text-gray-300 hover:text-white transition-colors duration-300 font-medium relative group">
-              Servicios
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="#testimonios" className="text-gray-300 hover:text-white transition-colors duration-300 font-medium relative group">
-              Testimonios
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="#contacto" className="text-gray-300 hover:text-white transition-colors duration-300 font-medium relative group">
-              Contacto
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <Link to="/login" className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-3 rounded-full hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 font-semibold shadow-lg hover:shadow-xl">
-              Iniciar sesión
-            </Link>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-slate-800/95 backdrop-blur-xl p-6 space-y-4 shadow-2xl rounded-b-2xl border border-slate-700/50">
-            <a href="#inicio" className="block text-gray-300 hover:text-white transition-colors duration-300 py-2">Inicio</a>
-            <a href="#servicios" className="block text-gray-300 hover:text-white transition-colors duration-300 py-2">Servicios</a>
-            <a href="#testimonios" className="block text-gray-300 hover:text-white transition-colors duration-300 py-2">Testimonios</a>
-            <a href="#contacto" className="block text-gray-300 hover:text-white transition-colors duration-300 py-2">Contacto</a>
-            <Link to="/login" className="block w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-3 rounded-full hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 font-semibold text-center shadow-lg mt-4">
-              Iniciar sesión
-            </Link>
-          </div>
-        )}
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section id="inicio" className="relative z-10 px-6 py-32 text-center">
@@ -177,34 +123,34 @@ export default function LandingPage() {
             style={{ transform: `translateY(${scrollY * 0.05}px)` }}
           >
             {/* Hero Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-sm border border-blue-400/30 rounded-full text-blue-200 text-sm font-medium mb-8 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-sm font-medium mb-8 animate-fade-in">
               <Heart className="w-4 h-4" />
               Tu salud y bienestar son nuestra prioridad
             </div>
             
             <h1 className="text-6xl md:text-8xl font-black mb-8 leading-tight">
-              <span className="bg-gradient-to-r from-white via-blue-200 to-cyan-200 bg-clip-text text-transparent animate-gradient-x">
+              <span className="text-white animate-gradient-x">
                 Recupera tu
               </span>
               <br />
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent animate-gradient-x" style={{animationDelay: '0.5s'}}>
+              <span className="bg-gradient-to-r from-blue-200 via-white to-blue-200 bg-clip-text text-transparent animate-gradient-x" style={{animationDelay: '0.5s'}}>
                 bienestar
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl mb-12 text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              En <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent font-semibold">Clínica PhysioMar</span> te ayudamos a recuperar tu movilidad y calidad de vida. 
+            <p className="text-xl md:text-2xl mb-12 text-blue-100 max-w-4xl mx-auto leading-relaxed">
+              En <span className="text-white font-semibold">Clínica PhysioMar</span> te ayudamos a recuperar tu movilidad y calidad de vida. 
               <br className="hidden md:block" />
-              Tratamientos personalizados con tecnología de vanguardia. <span className="hidden md:inline text-gray-400">Tu recuperación es nuestra misión.</span>
+              Tratamientos personalizados con tecnología de vanguardia. <span className="hidden md:inline text-blue-200">Tu recuperación es nuestra misión.</span>
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-              <Link to="/registrar" className="group relative bg-gradient-to-r from-blue-500 to-cyan-500 px-10 py-4 rounded-full text-lg font-bold text-white hover:from-blue-600 hover:to-cyan-600 transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-blue-500/25 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+              <Link to="/registrar" className="group relative bg-white text-blue-700 px-10 py-4 rounded-full text-lg font-bold hover:bg-blue-50 transition-all duration-500 transform hover:scale-105 shadow-2xl overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-50/0 via-blue-100/50 to-blue-50/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                 <span className="relative z-10">Agendar Cita</span>
                 <Calendar className="relative z-10 inline ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
-              <a href="#servicios" className="group flex items-center px-10 py-4 border-2 border-gray-400/30 rounded-full text-lg font-semibold text-gray-300 hover:border-blue-400/50 hover:text-white transition-all duration-300 backdrop-blur-sm hover:bg-blue-500/10">
+              <a href="#servicios" className="group flex items-center px-10 py-4 border-2 border-white/30 rounded-full text-lg font-semibold text-white hover:border-white hover:bg-white/10 transition-all duration-300 backdrop-blur-sm">
                 <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
                 Nuestros Servicios
               </a>
@@ -213,20 +159,20 @@ export default function LandingPage() {
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               <div className="group text-center p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-105">
-                <div className="text-4xl font-black bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-3">
+                <div className="text-4xl font-black text-white mb-3">
                   {loading ? '...' : `${terapeutas.length}+`}
                 </div>
-                <div className="text-gray-300 font-medium">Fisioterapeutas Especialistas</div>
+                <div className="text-blue-200 font-medium">Fisioterapeutas Especialistas</div>
               </div>
               <div className="group text-center p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-105">
-                <div className="text-4xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
+                <div className="text-4xl font-black text-white mb-3">
                   {loading ? '...' : `${especialidades.length}+`}
                 </div>
-                <div className="text-gray-300 font-medium">Tratamientos Especializados</div>
+                <div className="text-blue-200 font-medium">Tratamientos Especializados</div>
               </div>
               <div className="group text-center p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-105">
-                <div className="text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent mb-3">95%</div>
-                <div className="text-gray-300 font-medium">Pacientes Satisfechos</div>
+                <div className="text-4xl font-black text-white mb-3">95%</div>
+                <div className="text-blue-200 font-medium">Pacientes Satisfechos</div>
               </div>
             </div>
           </div>
@@ -234,20 +180,20 @@ export default function LandingPage() {
         {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
           <div className="p-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-            <ChevronDown className="w-6 h-6 text-gray-300" />
+            <ChevronDown className="w-6 h-6 text-white" />
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="servicios" className="relative z-10 px-6 py-32 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm">
+      <section id="servicios" className="relative z-10 px-6 py-32 bg-gradient-to-br from-white/95 to-blue-50/95 backdrop-blur-sm text-gray-800">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-800">
               ¿Por qué elegir 
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">PhysioMar</span>?
+              <span className="text-blue-600">PhysioMar</span>?
             </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Somos especialistas en fisioterapia con años de experiencia ayudando a nuestros pacientes a recuperar su calidad de vida.
             </p>
           </div>
@@ -545,42 +491,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 px-6 py-16 bg-gradient-to-br from-slate-900 to-black border-t border-white/10">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
-            <div className="flex items-center gap-3 text-2xl font-bold">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-xl shadow-lg">
-                <Heart className="w-7 h-7 text-white" />
-              </div>
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">Clínica PhysioMar</span>
-            </div>
-            <div className="text-gray-400 text-center md:text-right">
-              <p className="mb-2">Tu bienestar es nuestra pasión</p>
-              <p className="text-sm">© {new Date().getFullYear()} Clínica PhysioMar. Todos los derechos reservados.</p>
-            </div>
-          </div>
-          
-          {/* Contact info and hours */}
-          <div className="border-t border-white/10 pt-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <h4 className="text-white font-semibold mb-2">Horarios</h4>
-              <p className="text-gray-400 text-sm">Lun - Vie: 8:00 AM - 8:00 PM</p>
-              <p className="text-gray-400 text-sm">Sáb: 9:00 AM - 2:00 PM</p>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-2">Contacto</h4>
-              <p className="text-gray-400 text-sm">Tel: +52 555 123 4567</p>
-              <p className="text-gray-400 text-sm">contacto@physioMar.com</p>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-2">Ubicación</h4>
-              <p className="text-gray-400 text-sm">Ciudad de México</p>
-              <p className="text-gray-400 text-sm">Consultorios médicos</p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

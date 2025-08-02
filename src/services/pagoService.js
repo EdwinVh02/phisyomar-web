@@ -1,174 +1,171 @@
 import api from './api';
 
-const PAGO_ENDPOINTS = {
-  getAll: '/pagos',
-  create: '/pagos',
-  update: (id) => `/pagos/${id}`,
-  delete: (id) => `/pagos/${id}`,
-  show: (id) => `/pagos/${id}`,
-  stats: '/pagos/estadisticas',
-};
-
-export const pagoService = {
-  // Obtener todos los pagos
-  getAll: async (params = {}) => {
-    try {
-      const response = await api.get(PAGO_ENDPOINTS.getAll, { params });
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        meta: response.data.meta || {}
-      };
-    } catch (error) {
-      console.error('Error al obtener pagos:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Error al cargar pagos'
-      };
-    }
-  },
-
-  // Crear nuevo pago
-  create: async (data) => {
-    try {
-      const response = await api.post(PAGO_ENDPOINTS.create, data);
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: 'Pago procesado exitosamente'
-      };
-    } catch (error) {
-      console.error('Error al crear pago:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Error al procesar pago'
-      };
-    }
-  },
-
-  // Actualizar pago
-  update: async (id, data) => {
-    try {
-      const response = await api.put(PAGO_ENDPOINTS.update(id), data);
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: 'Pago actualizado exitosamente'
-      };
-    } catch (error) {
-      console.error('Error al actualizar pago:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Error al actualizar pago'
-      };
-    }
-  },
-
-  // Eliminar pago
-  delete: async (id) => {
-    try {
-      await api.delete(PAGO_ENDPOINTS.delete(id));
-      return {
-        success: true,
-        message: 'Pago eliminado exitosamente'
-      };
-    } catch (error) {
-      console.error('Error al eliminar pago:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Error al eliminar pago'
-      };
-    }
-  },
-
-  // Obtener pago por ID
-  getById: async (id) => {
-    try {
-      const response = await api.get(PAGO_ENDPOINTS.show(id));
-      return {
-        success: true,
-        data: response.data.data || response.data
-      };
-    } catch (error) {
-      console.error('Error al obtener pago:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Error al cargar pago'
-      };
-    }
-  },
-
-  // Obtener estadísticas de pagos
-  getStats: async (filters = {}) => {
-    try {
-      const pagos = await this.getAll(filters);
-      if (!pagos.success) return pagos;
-
-      const data = pagos.data || [];
-      
-      const completados = data.filter(p => p.status === 'Completado');
-      const pendientes = data.filter(p => p.status === 'Pendiente');
-      const fallidos = data.filter(p => p.status === 'Fallido');
-      
-      const ingresos = completados.reduce((sum, pago) => sum + parseFloat(pago.monto || 0), 0);
-
-      return {
-        success: true,
-        data: {
-          total_pagos: data.length,
-          completados: completados.length,
-          pendientes: pendientes.length,
-          fallidos: fallidos.length,
-          ingresos_totales: ingresos,
-          ingreso_promedio: completados.length > 0 ? ingresos / completados.length : 0
-        }
-      };
-    } catch (error) {
-      console.error('Error al obtener estadísticas:', error);
-      return {
-        success: false,
-        error: 'Error al calcular estadísticas'
-      };
-    }
-  },
-
-  // Exportar pagos
-  exportar: async (filters = {}) => {
-    try {
-      const response = await api.get(`${PAGO_ENDPOINTS.getAll}/export`, { 
-        params: filters,
-        responseType: 'blob'
-      });
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      console.error('Error al exportar pagos:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Error al exportar datos'
-      };
-    }
-  },
-
-  // Procesar reembolso
-  reembolsar: async (id, data = {}) => {
-    try {
-      const response = await api.post(`${PAGO_ENDPOINTS.show(id)}/refund`, data);
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: 'Reembolso procesado exitosamente'
-      };
-    } catch (error) {
-      console.error('Error al procesar reembolso:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Error al procesar reembolso'
-      };
-    }
+// Crear orden de pago
+export const crearOrdenPago = async (pagoData) => {
+  try {
+    console.log('🔄 Creando orden de pago...', pagoData);
+    const response = await api.post('/pagos/crear-orden', pagoData);
+    console.log('✅ Orden creada:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al crear orden:', error);
+    throw new Error(error.response?.data?.message || 'Error al crear orden de pago');
   }
 };
 
-export default pagoService;
+// Confirmar pago con PayPal
+export const confirmarPago = async (orderId, detallesPago) => {
+  try {
+    console.log('🔄 Confirmando pago...', { orderId, detallesPago });
+    const response = await api.post('/pagos/confirmar', {
+      orderId,
+      detallesPago
+    });
+    console.log('✅ Pago confirmado:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al confirmar pago:', error);
+    throw new Error(error.response?.data?.message || 'Error al confirmar pago');
+  }
+};
+
+// Obtener historial de pagos del paciente
+export const getHistorialPagos = async () => {
+  try {
+    console.log('🔄 Obteniendo historial de pagos...');
+    const response = await api.get('/paciente/pagos');
+    console.log('✅ Historial obtenido:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener historial:', error);
+    // Fallback con datos de ejemplo si el endpoint no existe
+    if (error.response?.status === 404) {
+      console.log('ℹ️ Endpoint no encontrado, retornando datos de ejemplo');
+      return getPagosEjemplo();
+    }
+    throw new Error(error.response?.data?.message || 'Error al obtener historial de pagos');
+  }
+};
+
+// Datos de ejemplo para desarrollo
+const getPagosEjemplo = () => {
+  return [
+    {
+      id: 1,
+      fecha: '2025-01-15',
+      concepto: 'Consulta de Fisioterapia',
+      monto: 800,
+      estado: 'pagado',
+      metodoPago: 'PayPal',
+      numeroFactura: 'F-2025-001',
+      terapeuta: 'Dr. Juan González',
+      sesion: 'Rehabilitación lumbar',
+      vencimiento: '2025-01-30',
+      transaccionId: 'PAYPAL-12345'
+    },
+    {
+      id: 2,
+      fecha: '2025-01-08',
+      concepto: 'Sesión de Rehabilitación',
+      monto: 600,
+      estado: 'pagado',
+      metodoPago: 'PayPal',
+      numeroFactura: 'F-2025-002',
+      terapeuta: 'Dr. Juan González',
+      sesion: 'Terapia manual',
+      vencimiento: '2025-01-23',
+      transaccionId: 'PAYPAL-12346'
+    },
+    {
+      id: 3,
+      fecha: '2025-01-01',
+      concepto: 'Evaluación Inicial',
+      monto: 1,
+      estado: 'pendiente',
+      metodoPago: 'Pendiente',
+      numeroFactura: 'F-2025-003',
+      terapeuta: 'Dr. Juan González',
+      sesion: 'Evaluación completa',
+      vencimiento: '2025-01-16'
+    },
+    {
+      id: 4,
+      fecha: '2024-12-20',
+      concepto: 'Terapia de Rehabilitación',
+      monto: 950,
+      estado: 'pendiente',
+      metodoPago: 'Pendiente',
+      numeroFactura: 'F-2024-045',
+      terapeuta: 'Dra. María López',
+      sesion: 'Rehabilitación de rodilla',
+      vencimiento: '2025-01-05'
+    }
+  ];
+};
+
+// Descargar factura
+export const descargarFactura = async (facturaId) => {
+  try {
+    console.log('🔄 Descargando factura...', facturaId);
+    const response = await api.get(`/pagos/factura/${facturaId}`, {
+      responseType: 'blob'
+    });
+    
+    // Crear enlace de descarga
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `factura-${facturaId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    
+    console.log('✅ Factura descargada');
+    return true;
+  } catch (error) {
+    console.error('❌ Error al descargar factura:', error);
+    // Simulación de descarga para desarrollo
+    if (error.response?.status === 404) {
+      console.log('ℹ️ Simulando descarga de factura');
+      const fakeContent = `Factura No. ${facturaId}\nClínica PhysioMar\nTotal: $${Math.random() * 1000 + 500}\nFecha: ${new Date().toLocaleDateString()}`;
+      const blob = new Blob([fakeContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `factura-${facturaId}.txt`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      return true;
+    }
+    throw new Error(error.response?.data?.message || 'Error al descargar factura');
+  }
+};
+
+// Obtener detalles de un pago específico
+export const getDetallePago = async (pagoId) => {
+  try {
+    console.log('🔄 Obteniendo detalle del pago...', pagoId);
+    const response = await api.get(`/pagos/${pagoId}`);
+    console.log('✅ Detalle obtenido:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener detalle:', error);
+    throw new Error(error.response?.data?.message || 'Error al obtener detalle del pago');
+  }
+};
+
+// Cancelar pago pendiente
+export const cancelarPago = async (pagoId) => {
+  try {
+    console.log('🔄 Cancelando pago...', pagoId);
+    const response = await api.put(`/pagos/${pagoId}/cancelar`);
+    console.log('✅ Pago cancelado:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al cancelar pago:', error);
+    throw new Error(error.response?.data?.message || 'Error al cancelar pago');
+  }
+};

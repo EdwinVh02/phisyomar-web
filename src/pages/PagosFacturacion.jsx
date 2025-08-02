@@ -14,8 +14,11 @@ import {
   Search,
   Receipt,
   Wallet,
-  TrendingUp
+  TrendingUp,
+  X
 } from 'lucide-react';
+import { getHistorialPagos, descargarFactura } from '../services/pagoService';
+import PayPalButtonSimple from '../components/PayPalButtonSimple';
 
 export default function PagosFacturacion() {
   const [pagos, setPagos] = useState([]);
@@ -23,6 +26,10 @@ export default function PagosFacturacion() {
   const [filtroEstado, setFiltroEstado] = useState('');
   const [filtroFecha, setFiltroFecha] = useState('');
   const [busqueda, setBusqueda] = useState('');
+  const [pagoSeleccionado, setPagoSeleccionado] = useState(null);
+  const [mostrarModalPago, setMostrarModalPago] = useState(false);
+  const [error, setError] = useState('');
+  const [mensajeExito, setMensajeExito] = useState('');
 
   // Datos de ejemplo - en producción vendrían de una API
   const pagosEjemplo = [
@@ -65,12 +72,24 @@ export default function PagosFacturacion() {
   ];
 
   useEffect(() => {
-    // Simular carga de datos
-    setTimeout(() => {
-      setPagos(pagosEjemplo);
-      setLoading(false);
-    }, 1000);
+    cargarPagos();
   }, []);
+
+  const cargarPagos = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await getHistorialPagos();
+      setPagos(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Error al cargar pagos:', err);
+      setError(err.message);
+      // Fallback a datos de ejemplo
+      setPagos(pagosEjemplo);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtrarPagos = () => {
     return pagos.filter(pago => {
@@ -118,6 +137,65 @@ export default function PagosFacturacion() {
     }
   };
 
+  const manejarPago = (pago) => {
+    setPagoSeleccionado(pago);
+    setMostrarModalPago(true);
+  };
+
+  const manejarExitoPago = (resultado) => {
+    console.log('Pago exitoso:', resultado);
+    
+    // Mostrar mensaje de éxito
+    setError('');
+    setMensajeExito(`¡Pago de $${pagoSeleccionado.monto} MXN procesado exitosamente!`);
+    
+    // Actualizar el estado del pago en la lista
+    setPagos(prevPagos => 
+      prevPagos.map(p => 
+        p.id === pagoSeleccionado.id 
+          ? { 
+              ...p, 
+              estado: 'pagado', 
+              metodoPago: 'PayPal', 
+              transaccionId: resultado.detallesPayPal?.id || resultado.transaccion_id,
+              fechaPago: new Date().toISOString().split('T')[0]
+            }
+          : p
+      )
+    );
+    
+    // Cerrar modal después de un breve delay para mostrar el éxito
+    setTimeout(() => {
+      setMostrarModalPago(false);
+      setPagoSeleccionado(null);
+      
+      // Limpiar mensaje de éxito después de unos segundos
+      setTimeout(() => {
+        setMensajeExito('');
+      }, 3000);
+    }, 2000);
+  };
+
+  const manejarErrorPago = (error) => {
+    console.error('Error en pago:', error);
+    setError('Error al procesar el pago: ' + error.message);
+  };
+
+  const manejarCancelacionPago = () => {
+    console.log('Pago cancelado por el usuario');
+    setMostrarModalPago(false);
+    setPagoSeleccionado(null);
+  };
+
+  const manejarDescarga = async (pago) => {
+    try {
+      await descargarFactura(pago.numeroFactura);
+    } catch (error) {
+      console.error('Error al descargar:', error);
+      setError('Error al descargar la factura: ' + error.message);
+    }
+  };
+
   const totalPagado = pagos.filter(p => p.estado === 'pagado').reduce((sum, p) => sum + p.monto, 0);
   const totalPendiente = pagos.filter(p => p.estado === 'pendiente').reduce((sum, p) => sum + p.monto, 0);
   const totalGeneral = pagos.reduce((sum, p) => sum + p.monto, 0);
@@ -141,6 +219,34 @@ export default function PagosFacturacion() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Pagos y Facturación</h1>
         <p className="text-gray-600">Consulta tus pagos y facturas</p>
+        
+        {/* Mensaje de error global */}
+        {error && (
+          <div className="mt-4 flex items-center gap-2 px-4 py-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+            <XCircle className="w-5 h-5 flex-shrink-0" />
+            <span>{error}</span>
+            <button 
+              onClick={() => setError('')}
+              className="ml-auto text-red-500 hover:text-red-700"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        
+        {/* Mensaje de éxito global */}
+        {mensajeExito && (
+          <div className="mt-4 flex items-center gap-2 px-4 py-3 bg-green-50 text-green-700 rounded-lg border border-green-200">
+            <CheckCircle className="w-5 h-5 flex-shrink-0" />
+            <span>{mensajeExito}</span>
+            <button 
+              onClick={() => setMensajeExito('')}
+              className="ml-auto text-green-500 hover:text-green-700"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Filtros */}
@@ -312,16 +418,25 @@ export default function PagosFacturacion() {
                 </div>
 
                 <div className="flex justify-end gap-2">
-                  <button className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                  <button 
+                    onClick={() => alert(`Ver detalle del pago ${pago.numeroFactura}`)}
+                    className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  >
                     <Eye className="w-4 h-4" />
                     Ver Detalle
                   </button>
-                  <button className="flex items-center gap-2 px-4 py-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                  <button 
+                    onClick={() => manejarDescarga(pago)}
+                    className="flex items-center gap-2 px-4 py-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                  >
                     <Download className="w-4 h-4" />
                     Descargar Factura
                   </button>
                   {pago.estado === 'pendiente' && (
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors">
+                    <button 
+                      onClick={() => manejarPago(pago)}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors"
+                    >
                       <CreditCard className="w-4 h-4" />
                       Pagar Ahora
                     </button>
@@ -332,6 +447,72 @@ export default function PagosFacturacion() {
           </div>
         )}
       </div>
+
+      {/* Modal de Pago con PayPal */}
+      {mostrarModalPago && pagoSeleccionado && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            {/* Header del Modal */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Procesar Pago</h3>
+                <p className="text-sm text-gray-600">Pagar con PayPal</p>
+              </div>
+              <button
+                onClick={() => setMostrarModalPago(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Detalles del Pago */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Concepto:</span>
+                  <span className="font-medium">{pagoSeleccionado.concepto}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Factura:</span>
+                  <span className="font-medium">{pagoSeleccionado.numeroFactura}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Terapeuta:</span>
+                  <span className="font-medium">{pagoSeleccionado.terapeuta}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Fecha:</span>
+                  <span className="font-medium">{formatearFecha(pagoSeleccionado.fecha)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold border-t pt-3">
+                  <span className="text-gray-900">Total a pagar:</span>
+                  <span className="text-blue-600">{formatearMonto(pagoSeleccionado.monto)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Botón de PayPal */}
+            <div className="p-6">
+              <PayPalButtonSimple
+                pago={pagoSeleccionado}
+                onSuccess={manejarExitoPago}
+                onError={manejarErrorPago}
+                onCancel={manejarCancelacionPago}
+              />
+              
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => setMostrarModalPago(false)}
+                  className="text-gray-500 hover:text-gray-700 text-sm transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

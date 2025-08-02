@@ -53,10 +53,40 @@ export const deleteCita = async (id) => {
 // Servicios específicos para pacientes
 export const getMisCitas = async () => {
   try {
+    console.log('🔍 Obteniendo mis citas...');
+    
+    // Verificar token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No hay token de autenticación');
+    }
+    
     const response = await api.get('/paciente/mis-citas');
-    return response.data;
+    console.log('✅ Citas obtenidas:', response.data);
+    
+    // Asegurar que siempre retornamos un array
+    const citas = response.data?.data || response.data || [];
+    return Array.isArray(citas) ? citas : [];
+    
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Error al obtener mis citas');
+    console.error('❌ Error al obtener citas:', error);
+    
+    if (error.code === 'ECONNABORTED') {
+      throw new Error('Tiempo de espera agotado. Verifica tu conexión a internet.');
+    }
+    
+    if (error.response?.status === 404) {
+      console.log('ℹ️ Endpoint no encontrado, retornando array vacío');
+      return [];
+    }
+    
+    if (error.response?.status === 401) {
+      throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+    }
+    
+    const errorMessage = error.response?.data?.message || error.message || 'Error al obtener citas';
+    console.error('❌ Error final:', errorMessage);
+    throw new Error(errorMessage);
   }
 };
 

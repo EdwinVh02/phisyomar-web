@@ -15,13 +15,12 @@ const useGoogleAuth = () => {
       if (window.google && window.google.accounts) {
         setIsGoogleLoaded(true);
         
-        // Inicializar Google Identity Services con configuración para desarrollo
+        // Inicializar Google Identity Services con configuración actualizada
         window.google.accounts.id.initialize({
           client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
           auto_select: false,
-          cancel_on_tap_outside: false,
-          use_fedcm_for_prompt: false // Deshabilitar FedCM para desarrollo local
+          cancel_on_tap_outside: true
         });
       } else {
         setTimeout(checkGoogleLoaded, 100);
@@ -83,53 +82,22 @@ const useGoogleAuth = () => {
 
   const signInWithGoogle = () => {
     if (isGoogleLoaded) {
-      // Usar renderButton en lugar de prompt() para evitar problemas con FedCM
-      const buttonDiv = document.createElement('div');
-      buttonDiv.style.position = 'fixed';
-      buttonDiv.style.top = '50%';
-      buttonDiv.style.left = '50%';
-      buttonDiv.style.transform = 'translate(-50%, -50%)';
-      buttonDiv.style.zIndex = '9999';
-      buttonDiv.style.backgroundColor = 'white';
-      buttonDiv.style.padding = '20px';
-      buttonDiv.style.borderRadius = '10px';
-      buttonDiv.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
-      
-      document.body.appendChild(buttonDiv);
-      
-      window.google.accounts.id.renderButton(buttonDiv, {
-        theme: 'filled_blue',
-        size: 'large',
-        text: 'signin_with',
-        shape: 'rectangular',
-        logo_alignment: 'left',
-        width: '300'
-      });
-      
-      // Agregar botón de cerrar
-      const closeButton = document.createElement('button');
-      closeButton.innerHTML = '×';
-      closeButton.style.position = 'absolute';
-      closeButton.style.top = '5px';
-      closeButton.style.right = '10px';
-      closeButton.style.background = 'none';
-      closeButton.style.border = 'none';
-      closeButton.style.fontSize = '20px';
-      closeButton.style.cursor = 'pointer';
-      closeButton.onclick = () => {
-        document.body.removeChild(buttonDiv);
-      };
-      
-      buttonDiv.appendChild(closeButton);
-      
-      // Cerrar automáticamente después de 10 segundos
-      setTimeout(() => {
-        if (document.body.contains(buttonDiv)) {
-          document.body.removeChild(buttonDiv);
-        }
-      }, 10000);
+      try {
+        // Usar prompt() directamente para una experiencia más limpia
+        window.google.accounts.id.prompt((notification) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            // Si el prompt no se muestra, mostrar mensaje informativo
+            console.warn('Google Sign-In popup fue bloqueado o no se pudo mostrar');
+            showError('Por favor, verifica que los popups estén habilitados para este sitio');
+          }
+        });
+      } catch (error) {
+        console.error('Error al mostrar Google Sign-In:', error);
+        showError('Error al inicializar Google Sign-In. Verifica la configuración del dominio.');
+      }
     } else {
       console.error('Google Sign-In no está cargado');
+      showError('Google Sign-In no se ha cargado correctamente');
     }
   };
 

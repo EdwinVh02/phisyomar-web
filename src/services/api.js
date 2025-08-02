@@ -7,6 +7,7 @@ const api = axios.create({
     'Accept': 'application/json',
   },
   withCredentials: false,
+  timeout: 10000, // 10 segundos timeout
 });
 
 // Interceptor para agregar el token a las peticiones

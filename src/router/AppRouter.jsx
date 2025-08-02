@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import PublicLayout from "../layouts/PublicLayout";
+import PacienteLayout from "../layouts/PacienteLayout";
+import TerapeutaLayout from "../layouts/TerapeutaLayout";
+import RecepcionistaLayout from "../layouts/RecepcionistaLayout";
 import LoginPage from "../pages/Login";
 import AdminDashboard from "../pages/AdminDashboard";
 import HomePage from "../pages/HomePage";
@@ -25,6 +28,7 @@ const HistorialesPage = lazy(() => import("../pages/HistorialesPage"));
 const BitacorasPage = lazy(() => import("../pages/BitacorasPage"));
 const DatabasePage = lazy(() => import("../pages/DatabasePage"));
 const ConfiguracionPage = lazy(() => import("../pages/ConfiguracionPage"));
+const RoleManagementPage = lazy(() => import("../pages/RoleManagementPage"));
 const CitasPage = lazy(() => import("../pages/Citas"));
 const RegistrarPage = lazy(() => import("../pages/Registrar"));
 const Agendarcita = lazy(() => import("../pages/AgendarCitaPaciente"));
@@ -74,6 +78,7 @@ export default function AppRoutes() {
           <Route path="bitacoras" element={<BitacorasPage />} />
           <Route path="database" element={<DatabasePage />} />
           <Route path="configuracion" element={<ConfiguracionPage />} />
+          <Route path="roles" element={<RoleManagementPage />} />
         </Route>
 
         {/* Rutas protegidas para TERAPEUTA */}
@@ -81,7 +86,7 @@ export default function AppRoutes() {
           path="/terapeuta"
           element={
             <ProtectedRoute allowedRoles={[2]}>
-              <AdminDashboard />
+              <TerapeutaLayout />
             </ProtectedRoute>
           }
         >
@@ -97,7 +102,7 @@ export default function AppRoutes() {
           path="/recepcionista"
           element={
             <ProtectedRoute allowedRoles={[3]}>
-              <AdminDashboard />
+              <RecepcionistaLayout />
             </ProtectedRoute>
           }
         >
@@ -111,7 +116,7 @@ export default function AppRoutes() {
           path="/paciente"
           element={
             <ProtectedRoute allowedRoles={[4]}>
-              <AdminDashboard />
+              <PacienteLayout />
             </ProtectedRoute>
           }
         >

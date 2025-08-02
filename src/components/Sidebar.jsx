@@ -5,7 +5,7 @@ import {
   BarChart3, Settings, Home, ChevronLeft, ChevronRight, LogOut,
   User, UserPlus, CreditCard, Star, HelpCircle, Shield,
   Building2, DollarSign, Clock, Database, UserCheck, Activity,
-  FolderOpen, BookOpen
+  FolderOpen, BookOpen, UserCog
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { logoutUser } from "../api/auth";
@@ -43,6 +43,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
         { title: "Estadísticas", icon: BarChart3, path: `${basePath}/estadisticas`, section: "analytics" },
         { title: "Bitácoras", icon: Activity, path: `${basePath}/bitacoras`, section: "analytics" },
         // Sección Sistema
+        { title: "Gestión de Roles", icon: UserCog, path: `${basePath}/roles`, section: "system" },
         { title: "Base de Datos", icon: Database, path: `${basePath}/database`, section: "system" },
         { title: "Configuración", icon: Settings, path: `${basePath}/configuracion`, section: "system" }
       ];

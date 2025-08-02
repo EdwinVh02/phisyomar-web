@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Stethoscope } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
@@ -13,8 +13,30 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { login, user, isAuthenticated } = useAuthStore();
   const { isGoogleLoaded, signInWithGoogle } = useGoogleAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // Redirigir usuario ya autenticado según su rol
+      switch (user.rol_id) {
+        case 1: // Administrador
+          navigate('/admin');
+          break;
+        case 2: // Terapeuta
+          navigate('/terapeuta');
+          break;
+        case 3: // Recepcionista
+          navigate('/recepcionista');
+          break;
+        case 4: // Paciente
+          navigate('/paciente');
+          break;
+        default:
+          navigate('/dashboard');
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

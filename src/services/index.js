@@ -14,6 +14,7 @@ export * from './bitacoraService';
 export * from './estadisticaService';
 export * from './databaseService';
 export * from './configuracionService';
+export * from './roleManagementService';
 
 // Exportar instancia de API
 export { default as api } from './api';

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
+    "@paypal/react-paypal-js": "^8.8.3",
     "axios": "^1.10.0",
     "chart.js": "^4.5.0",
     "googleapis": "^153.0.0",
