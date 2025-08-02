@@ -101,36 +101,47 @@ export default function Sidebar({ collapsed, setCollapsed }) {
   };
 
   return (
-    <div className={`fixed inset-y-0 left-0 z-50 ${collapsed ? 'w-20' : 'w-72'} bg-white/95 backdrop-blur-xl border-r border-slate-200/60 shadow-xl transition-all duration-300`}>
-      <div className="flex flex-col h-full">
-        {/* Logo */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200/60">
-          {!collapsed && (
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+    <>
+      {/* Overlay para móvil */}
+      {!collapsed && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setCollapsed(true)}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-50 ${collapsed ? 'w-20' : 'w-72'} bg-white border-r border-slate-200 shadow-lg transition-all duration-300 ${collapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
+        <div className="flex flex-col h-full">
+          {/* Logo */}
+          <div className="flex items-center justify-between p-6 border-b border-slate-200">
+            {!collapsed && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Stethoscope className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <span className="text-xl font-bold text-slate-800">
+                    PhisyoMar
+                  </span>
+                  <p className="text-xs text-slate-500 font-medium">Sistema Médico</p>
+                </div>
+              </div>
+            )}
+            {collapsed && (
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg mx-auto">
                 <Stethoscope className="w-6 h-6 text-white" />
               </div>
-              <div>
-                <span className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                  PhisyoMar
-                </span>
-                <p className="text-xs text-slate-500 font-medium">Sistema Médico</p>
-              </div>
-            </div>
-          )}
-          {collapsed && (
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg mx-auto">
-              <Stethoscope className="w-6 h-6 text-white" />
-            </div>
-          )}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors hidden lg:block"
-          >
-            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </button>
-        </div>
-        {/* Navigation */}
+            )}
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </button>
+          </div>
+          
+          {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {(() => {
             const items = sidebarItems;
@@ -143,7 +154,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
               system: { title: "Sistema", color: "gray" }
             };
 
-            return items.map((item, index) => {
+            return items.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               const showSectionHeader = item.section && item.section !== currentSection;
@@ -163,31 +174,23 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                   )}
                   <Link
                     to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full group ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 w-full group ${
                       isActive
-                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25'
-                        : 'text-slate-600 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:text-slate-800'
+                        ? 'bg-blue-50 border-r-2 border-blue-500 text-blue-700'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                     }`}
                   >
-                    <div className={`relative ${
+                    <Icon className={`w-5 h-5 ${
                       isActive 
-                        ? 'text-white' 
+                        ? 'text-blue-600' 
                         : 'text-slate-500 group-hover:text-slate-700'
-                    }`}>
-                      <Icon className="w-5 h-5" />
-                      {isActive && (
-                        <div className="absolute inset-0 bg-white/20 rounded-lg animate-pulse"></div>
-                      )}
-                    </div>
+                    }`} />
                     {!collapsed && (
-                      <span className={`font-medium transition-colors ${
-                        isActive ? 'text-white' : 'text-slate-700 group-hover:text-slate-800'
+                      <span className={`font-medium text-sm ${
+                        isActive ? 'text-blue-700' : 'text-slate-700 group-hover:text-slate-900'
                       }`}>
                         {item.title}
                       </span>
-                    )}
-                    {isActive && !collapsed && (
-                      <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
                     )}
                   </Link>
                 </div>
@@ -196,31 +199,41 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           })()}
         </nav>
         {/* User Profile */}
-        <div className="p-4 border-t border-white/20">
-          <div className={`flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 transition-colors ${collapsed ? 'justify-center' : ''}`}>
-            <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-              {user?.nombre?.charAt(0)?.toUpperCase() || 'U'}
+        <div className="p-4 border-t border-slate-200">
+          <div className={`flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors ${collapsed ? 'justify-center' : ''}`}>
+            <div className="w-9 h-9 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+              {user?.nombre?.charAt(0)?.toUpperCase() || 'A'}
             </div>
             {!collapsed && (
-              <div className="flex-1">
-                <p className="text-sm font-medium text-slate-800">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-slate-900 truncate">
                   {user?.nombre} {user?.apellido_paterno}
                 </p>
-                <p className="text-xs text-slate-600">{getRoleName(user?.rol_id)}</p>
+                <p className="text-xs text-slate-500 truncate">{getRoleName(user?.rol_id)}</p>
               </div>
             )}
           </div>
           {!collapsed && (
             <button 
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2 mt-2 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-2 mt-3 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors text-sm"
             >
               <LogOut className="w-4 h-4" />
-              <span className="text-sm font-medium">Cerrar Sesión</span>
+              <span className="font-medium">Cerrar Sesión</span>
             </button>
           )}
-        </div>
-      </div>
-    </div>
+          {collapsed && (
+            <button 
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center p-2 mt-2 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+              title="Cerrar Sesión"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
+        </div> {/* Cierre de perfil de usuario */}
+      </div> {/* Cierre de flex flex-col h-full */}
+    </div> {/* Cierre de fixed sidebar */}
+    </>
   );
 }

@@ -15,6 +15,7 @@ export * from './estadisticaService';
 export * from './databaseService';
 export * from './configuracionService';
 export * from './roleManagementService';
+export * from './dashboardService';
 
 // Exportar instancia de API
 export { default as api } from './api';
