@@ -230,7 +230,7 @@ export default function UsuariosPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-slate-600 text-sm font-medium">Total Usuarios</p>
-                  <p className="text-3xl font-bold text-slate-800">{usuariosMock.length}</p>
+                  <p className="text-3xl font-bold text-slate-800">{usuarios.length}</p>
                 </div>
                 <div className="bg-blue-100 p-3 rounded-full">
                   <Users className="w-6 h-6 text-blue-600" />
@@ -243,7 +243,7 @@ export default function UsuariosPage() {
                 <div>
                   <p className="text-slate-600 text-sm font-medium">Activos</p>
                   <p className="text-3xl font-bold text-green-600">
-                    {usuariosMock.filter(u => u.status === "activo").length}
+                    {usuarios.filter(u => u.status === "activo").length}
                   </p>
                 </div>
                 <div className="bg-green-100 p-3 rounded-full">
@@ -257,7 +257,7 @@ export default function UsuariosPage() {
                 <div>
                   <p className="text-slate-600 text-sm font-medium">Inactivos</p>
                   <p className="text-3xl font-bold text-red-600">
-                    {usuariosMock.filter(u => u.status === "inactivo").length}
+                    {usuarios.filter(u => u.status === "inactivo").length}
                   </p>
                 </div>
                 <div className="bg-red-100 p-3 rounded-full">
@@ -271,7 +271,7 @@ export default function UsuariosPage() {
                 <div>
                   <p className="text-slate-600 text-sm font-medium">Pendientes</p>
                   <p className="text-3xl font-bold text-yellow-600">
-                    {usuariosMock.filter(u => u.status === "pendiente").length}
+                    {usuarios.filter(u => u.status === "pendiente").length}
                   </p>
                 </div>
                 <div className="bg-yellow-100 p-3 rounded-full">
