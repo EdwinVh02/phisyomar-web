@@ -18,8 +18,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
+      // Obtener el rol_id de la estructura correcta
+      const roleId = user.user?.rol_id || user.rol_id;
+      
       // Redirigir usuario ya autenticado según su rol
-      switch (user.rol_id) {
+      switch (roleId) {
         case 1: // Administrador
           navigate('/admin');
           break;
@@ -45,23 +48,38 @@ export default function LoginPage() {
 
     try {
       const { usuario, token } = await loginUser(email, password);
+      
+      // Debug: Imprimir datos del usuario
+      console.log('🔍 Datos del usuario después del login:', usuario);
+      console.log('🎭 Rol ID:', usuario.rol_id);
+      console.log('🏷️ Estructura completa del usuario:', JSON.stringify(usuario, null, 2));
+      
       login(usuario, token);
       
+      // Obtener el rol_id de la estructura correcta
+      const roleId = usuario.user?.rol_id || usuario.rol_id;
+      console.log('🎯 Rol ID detectado:', roleId);
+      
       // Redirigir según el rol del usuario
-      switch (usuario.rol_id) {
+      switch (roleId) {
         case 1: // Administrador
+          console.log('➡️ Redirigiendo a admin');
           navigate('/admin');
           break;
         case 2: // Terapeuta
+          console.log('➡️ Redirigiendo a terapeuta');
           navigate('/terapeuta');
           break;
         case 3: // Recepcionista
+          console.log('➡️ Redirigiendo a recepcionista');
           navigate('/recepcionista');
           break;
         case 4: // Paciente
+          console.log('➡️ Redirigiendo a paciente');
           navigate('/paciente');
           break;
         default:
+          console.log('➡️ Rol desconocido, redirigiendo a dashboard');
           navigate('/dashboard');
       }
     } catch (error) {

@@ -82,12 +82,82 @@ export const useAuthStore = create((set, get) => ({
   // Verificar si el usuario tiene un rol específico
   hasRole: (roleId) => {
     const { user } = get();
-    return user?.rol_id === roleId;
+    const userRoleId = user?.user?.rol_id || user?.rol_id;
+    return userRoleId === roleId;
   },
 
   // Verificar si el usuario tiene uno de múltiples roles
   hasAnyRole: (roleIds) => {
     const { user } = get();
-    return roleIds.includes(user?.rol_id);
+    const userRoleId = user?.user?.rol_id || user?.rol_id;
+    return roleIds.includes(userRoleId);
+  },
+
+  // Actualizar datos del usuario (para cuando se completa el perfil)
+  updateUser: (userData) => {
+    const { user } = get();
+    const updatedUser = { ...user, ...userData };
+    
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    set({ user: updatedUser });
+  },
+
+  // Verificar si el perfil está completo
+  isProfileComplete: () => {
+    const { user } = get();
+    if (!user) return false;
+
+    // Verificar según el rol
+    switch (user.rol_id) {
+      case 4: // Paciente
+        const paciente = user.user?.paciente;
+        return !!(
+          paciente?.contacto_emergencia_nombre &&
+          paciente?.contacto_emergencia_telefono &&
+          paciente?.contacto_emergencia_parentesco
+        );
+      
+      case 2: // Terapeuta
+        const terapeuta = user.user?.terapeuta;
+        return !!(
+          terapeuta?.cedula_profesional &&
+          terapeuta?.especialidad_principal &&
+          terapeuta?.experiencia_anios
+        );
+      
+      case 3: // Recepcionista
+        return true; // Los recepcionistas no tienen campos obligatorios por ahora
+      
+      case 1: // Administrador
+        return true; // Los administradores pueden funcionar sin campos específicos
+      
+      default:
+        return false;
+    }
+  },
+
+  // Obtener datos específicos del rol
+  getRoleSpecificData: () => {
+    const { user } = get();
+    if (!user?.user) return null;
+
+    switch (user.rol_id) {
+      case 4: // Paciente
+        return user.user.paciente;
+      case 2: // Terapeuta
+        return user.user.terapeuta;
+      case 3: // Recepcionista
+        return user.user.recepcionista;
+      case 1: // Administrador
+        return user.user.administrador;
+      default:
+        return null;
+    }
+  },
+
+  // Obtener nombre del rol
+  getRoleName: () => {
+    const { user } = get();
+    return user?.role_name || 'Desconocido';
   },
 }));

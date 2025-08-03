@@ -1,9 +1,9 @@
 import api from './api';
 
 const ESTADISTICA_ENDPOINTS = {
-  dashboard: '/estadisticas/dashboard',
-  citas: '/estadisticas/citas',
-  ingresos: '/estadisticas/ingresos',
+  dashboard: '/dashboard/stats',
+  citas: '/estadisticas/citas-por-mes',
+  ingresos: '/estadisticas/ingresos-por-mes',
   pacientes: '/estadisticas/pacientes',
   terapeutas: '/estadisticas/terapeutas',
   especialidades: '/estadisticas/especialidades',
@@ -16,15 +16,21 @@ export const estadisticaService = {
   getDashboard: async (params = {}) => {
     try {
       const response = await api.get(ESTADISTICA_ENDPOINTS.dashboard, { params });
-      return {
-        success: true,
-        data: response.data.data || response.data
-      };
+      
+      // La respuesta viene como { success: true, data: { conteos: {...}, ... } }
+      if (response.data.success) {
+        return {
+          success: true,
+          data: response.data
+        };
+      } else {
+        throw new Error(response.data.message || 'Error en la respuesta del servidor');
+      }
     } catch (error) {
       console.error('Error al obtener estadísticas del dashboard:', error);
       return {
         success: false,
-        error: error.response?.data?.message || 'Error al cargar estadísticas'
+        error: error.response?.data?.message || error.message || 'Error al cargar estadísticas'
       };
     }
   },
@@ -168,11 +174,11 @@ export const estadisticaService = {
   getAllStats: async (timeRange = 'month') => {
     try {
       const [kpis, citas, ingresos, especialidades, horarios] = await Promise.all([
-        this.getKPIs(timeRange),
-        this.getCitasStats(timeRange),
-        this.getIngresosStats(timeRange),
-        this.getEspecialidadesStats(timeRange),
-        this.getHorariosPico(timeRange)
+        estadisticaService.getKPIs(timeRange),
+        estadisticaService.getCitasStats(timeRange),
+        estadisticaService.getIngresosStats(timeRange),
+        estadisticaService.getEspecialidadesStats(timeRange),
+        estadisticaService.getHorariosPico(timeRange)
       ]);
 
       return {

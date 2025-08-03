@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { BarChart3, Users, Calendar } from "lucide-react";
 import { estadisticaService } from "../services";
+import { debugDashboard } from "../services/debugDashboard";
 
 export default function DashboardHomePage() {
   const [dashboardData, setDashboardData] = useState({
@@ -17,17 +18,27 @@ export default function DashboardHomePage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await estadisticaService.getDashboard('week');
+      
+      // Debug: Probar endpoint directamente
+      console.log('🚀 Iniciando carga de dashboard...');
+      const debugResponse = await debugDashboard();
+      
+      const response = await estadisticaService.getDashboard({ time_range: 'week' });
+      console.log('📊 Respuesta del service:', response);
       
       if (response.success) {
+        // El endpoint /dashboard/stats devuelve la estructura: { data: { conteos: {...} } }
+        const dashboardStats = response.data.data || response.data;
+        console.log('📈 Dashboard stats procesados:', dashboardStats);
+        
         setDashboardData({
-          totalPacientes: response.data.kpis?.total_pacientes || 0,
-          citasHoy: response.data.kpis?.citas_hoy || 0,
-          proximasCitas: Math.floor(Math.random() * 20) + 5 // Simulado por ahora
+          totalPacientes: dashboardStats.conteos?.total_usuarios || 0,
+          citasHoy: dashboardStats.conteos?.citas_hoy || 0,
+          proximasCitas: dashboardStats.conteos?.total_citas || Math.floor(Math.random() * 20) + 5
         });
       }
     } catch (error) {
-      console.error('Error al cargar datos del dashboard:', error);
+      console.error('❌ Error al cargar datos del dashboard:', error);
       // Mantener datos por defecto en caso de error
       setDashboardData({
         totalPacientes: 312,

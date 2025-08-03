@@ -10,6 +10,8 @@ import AdminDashboard from "../pages/AdminDashboard";
 import HomePage from "../pages/HomePage";
 import UnauthorizedPage from "../pages/Unauthorized";
 import ProtectedRoute from "../components/ProtectedRoute";
+import ProfileChecker from "../components/ProfileChecker";
+import ProfileCompletion from "../components/ProfileCompletion";
 
 // Lazy loading de páginas principales
 const DashboardHomePage = lazy(() => import("../pages/DashboardHomePage"));
@@ -56,12 +58,24 @@ export default function AppRoutes() {
 
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
+        {/* Ruta para completar perfil (protegida pero sin verificación de perfil) */}
+        <Route 
+          path="/profile/complete" 
+          element={
+            <ProtectedRoute>
+              <ProfileCompletion />
+            </ProtectedRoute>
+          } 
+        />
+
         {/* Rutas protegidas para ADMINISTRADOR */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={[1]}>
-              <AdminDashboard />
+              <ProfileChecker>
+                <AdminDashboard />
+              </ProfileChecker>
             </ProtectedRoute>
           }
         >
@@ -86,7 +100,9 @@ export default function AppRoutes() {
           path="/terapeuta"
           element={
             <ProtectedRoute allowedRoles={[2]}>
-              <TerapeutaLayout />
+              <ProfileChecker>
+                <TerapeutaLayout />
+              </ProfileChecker>
             </ProtectedRoute>
           }
         >
@@ -102,7 +118,9 @@ export default function AppRoutes() {
           path="/recepcionista"
           element={
             <ProtectedRoute allowedRoles={[3]}>
-              <RecepcionistaLayout />
+              <ProfileChecker>
+                <RecepcionistaLayout />
+              </ProfileChecker>
             </ProtectedRoute>
           }
         >
@@ -116,7 +134,9 @@ export default function AppRoutes() {
           path="/paciente"
           element={
             <ProtectedRoute allowedRoles={[4]}>
-              <PacienteLayout />
+              <ProfileChecker>
+                <PacienteLayout />
+              </ProfileChecker>
             </ProtectedRoute>
           }
         >
@@ -131,17 +151,6 @@ export default function AppRoutes() {
           <Route path="ayuda" element={<AyudaSoporte />} />
         </Route>
 
-        {/* Dashboard genérico (redirige según rol) */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<DashboardHomePage />} />
-        </Route>
 
         {/* Ruta por defecto */}
         <Route path="*" element={<Navigate to="/" replace />} />

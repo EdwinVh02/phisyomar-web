@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { updateProfile } from '../services/usuarioService';
+import useProfile from '../hooks/useProfile';
 import { 
   User, 
   Mail, 
@@ -25,6 +26,7 @@ import {
 
 export default function PerfilPaciente() {
   const { user, login } = useAuthStore();
+  const { roleSpecificData } = useProfile();
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -477,6 +479,114 @@ export default function PerfilPaciente() {
                 </div>
               </div>
             </div>
+
+            {/* Información de Contacto de Emergencia */}
+            {roleSpecificData && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Contacto de Emergencia</h3>
+                    <p className="text-gray-500 text-sm">Información para casos de emergencia</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Nombre del Contacto
+                    </label>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                      {roleSpecificData.contacto_emergencia_nombre || 'No especificado'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Teléfono de Emergencia
+                    </label>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                      {roleSpecificData.contacto_emergencia_telefono || 'No especificado'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Parentesco
+                    </label>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                      {roleSpecificData.contacto_emergencia_parentesco || 'No especificado'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Información del Tutor (si existe) */}
+                {(roleSpecificData.tutor_nombre || roleSpecificData.tutor_telefono) && (
+                  <div className="mt-6">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Información del Tutor</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                          Nombre del Tutor
+                        </label>
+                        <p className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                          {roleSpecificData.tutor_nombre || 'No especificado'}
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                          Teléfono del Tutor
+                        </label>
+                        <p className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                          {roleSpecificData.tutor_telefono || 'No especificado'}
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                          Parentesco
+                        </label>
+                        <p className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                          {roleSpecificData.tutor_parentesco || 'No especificado'}
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                          Dirección del Tutor
+                        </label>
+                        <p className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                          {roleSpecificData.tutor_direccion || 'No especificada'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {(!roleSpecificData.contacto_emergencia_nombre && 
+                  !roleSpecificData.contacto_emergencia_telefono && 
+                  !roleSpecificData.contacto_emergencia_parentesco) && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-semibold text-blue-800">Información Pendiente</h4>
+                    </div>
+                    <p className="text-sm text-blue-700">
+                      Para tu seguridad, es importante que proporciones información de contacto de emergencia.
+                    </p>
+                    <button 
+                      onClick={() => window.location.href = '/profile/complete'}
+                      className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                    >
+                      Completar Información
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
     </div>
