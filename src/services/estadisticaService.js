@@ -15,23 +15,10 @@ export const estadisticaService = {
   // Obtener estadísticas del dashboard principal
   getDashboard: async (params = {}) => {
     try {
-      const response = await api.get(ESTADISTICA_ENDPOINTS.dashboard, { params });
-      
-      // La respuesta viene como { success: true, data: { conteos: {...}, ... } }
-      if (response.data.success) {
-        return {
-          success: true,
-          data: response.data
-        };
-      } else {
-        throw new Error(response.data.message || 'Error en la respuesta del servidor');
-      }
+      const response = await api.get('/estadisticas/dashboard', { params });
+      return { success: true, data: response.data };
     } catch (error) {
-      console.error('Error al obtener estadísticas del dashboard:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message || 'Error al cargar estadísticas'
-      };
+      return { success: false, error: error.response?.data?.message || 'Error al obtener estadísticas' };
     }
   },
 

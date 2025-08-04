@@ -16,70 +16,59 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
+import { getMiHistorialMedico } from '../services/historialService';
 
 export default function HistorialMedico() {
   const [historial, setHistorial] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filtroFecha, setFiltroFecha] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('');
   const [busqueda, setBusqueda] = useState('');
-
-  // Datos de ejemplo - en producción vendrían de una API
-  const historialEjemplo = [
-    {
-      id: 1,
-      fecha: '2025-01-15',
-      tipo: 'Consulta General',
-      terapeuta: 'Dr. Juan González',
-      diagnostico: 'Lumbalgia crónica',
-      tratamiento: 'Ejercicios de fortalecimiento y fisioterapia',
-      observaciones: 'Paciente muestra mejoría significativa en movilidad',
-      estado: 'completada',
-      duracion: 60,
-      ubicacion: 'Consultorio 1'
-    },
-    {
-      id: 2,
-      fecha: '2025-01-08',
-      tipo: 'Fisioterapia',
-      terapeuta: 'Dr. Juan González',
-      diagnostico: 'Rehabilitación post-quirúrgica',
-      tratamiento: 'Terapia manual y ejercicios específicos',
-      observaciones: 'Evolución favorable, continuar con el protocolo',
-      estado: 'completada',
-      duracion: 45,
-      ubicacion: 'Sala de Rehabilitación'
-    },
-    {
-      id: 3,
-      fecha: '2025-01-01',
-      tipo: 'Evaluación Inicial',
-      terapeuta: 'Dr. Juan González',
-      diagnostico: 'Dolor lumbar mecánico',
-      tratamiento: 'Plan de tratamiento establecido',
-      observaciones: 'Primera consulta, evaluación completa realizada',
-      estado: 'completada',
-      duracion: 90,
-      ubicacion: 'Consultorio 2'
-    }
-  ];
+  const { user } = useAuthStore();
 
   useEffect(() => {
-    // Simular carga de datos
-    setTimeout(() => {
-      setHistorial(historialEjemplo);
-      setLoading(false);
-    }, 1000);
+    cargarHistorial();
   }, []);
+
+  const cargarHistorial = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('🔍 Cargando historial médico del paciente...');
+      
+      // Obtener el historial médico específico del paciente logueado
+      const data = await getMiHistorialMedico();
+      console.log('✅ Historial obtenido:', data);
+      
+      // Filtrar solo el historial del paciente actual si es necesario
+      const historialPaciente = Array.isArray(data) ? data : (data?.data || []);
+      setHistorial(historialPaciente);
+      
+    } catch (err) {
+      console.error('❌ Error al cargar historial:', err);
+      setError(err.message);
+      setHistorial([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtrarHistorial = () => {
     return historial.filter(item => {
-      const cumpleFecha = !filtroFecha || item.fecha.includes(filtroFecha);
-      const cumpleTipo = !filtroTipo || item.tipo === filtroTipo;
+      if (!item) return false;
+      
+      const fecha = item.fecha_creacion || item.fecha || item.created_at || '';
+      const tipo = item.tipo || item.motivo_visita || 'Consulta General';
+      const diagnostico = item.diagnostico || item.observacion_general || '';
+      const tratamiento = item.tratamiento || '';
+      
+      const cumpleFecha = !filtroFecha || fecha.includes(filtroFecha);
+      const cumpleTipo = !filtroTipo || tipo === filtroTipo;
       const cumpleBusqueda = !busqueda || 
-        item.diagnostico.toLowerCase().includes(busqueda.toLowerCase()) ||
-        item.tratamiento.toLowerCase().includes(busqueda.toLowerCase()) ||
-        item.terapeuta.toLowerCase().includes(busqueda.toLowerCase());
+        diagnostico.toLowerCase().includes(busqueda.toLowerCase()) ||
+        tratamiento.toLowerCase().includes(busqueda.toLowerCase());
       
       return cumpleFecha && cumpleTipo && cumpleBusqueda;
     });

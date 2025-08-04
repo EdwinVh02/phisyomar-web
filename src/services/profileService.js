@@ -29,9 +29,18 @@ export async function getProfileData() {
  */
 export async function completeProfile(profileData) {
   try {
+    console.log('Enviando datos al backend:', profileData);
     const response = await api.post('/user/profile/complete', profileData);
     return response.data;
   } catch (error) {
+    console.error('Error completo:', error);
+    console.error('Error de respuesta:', error.response?.data);
+    
+    if (error.response?.data?.errors) {
+      const errorMessages = Object.values(error.response.data.errors).flat().join(', ');
+      throw new Error(`Errores de validación: ${errorMessages}`);
+    }
+    
     throw new Error(error.response?.data?.message || 'Error al completar perfil');
   }
 }

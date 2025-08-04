@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getHistoriales } from '../services/historialService'; // Importa el servicio
 import { Search, Filter, Eye, Edit, FileText, User, Calendar, Download } from 'lucide-react';
 
 export default function HistorialesPage() {
@@ -15,68 +16,12 @@ export default function HistorialesPage() {
   const fetchHistoriales = async () => {
     try {
       setLoading(true);
-      
-      // Datos de ejemplo
-      const mockData = [
-        {
-          id: 1,
-          paciente: {
-            nombre: 'Juan Pérez García',
-            edad: 35,
-            telefono: '555-0101'
-          },
-          fecha_creacion: '2025-01-10',
-          ultima_actualizacion: '2025-01-15',
-          motivo_consulta: 'Dolor de espalda baja crónico',
-          diagnostico_fisioterapeutico: 'Lumbalgia mecánica con contractura muscular',
-          terapeuta: 'Dr. Carlos López',
-          sesiones_completadas: 8,
-          sesiones_programadas: 12,
-          alergias: 'Ninguna conocida',
-          medicamentos_actuales: 'Ibuprofeno 400mg cada 8 horas',
-          estado: 'Activo'
-        },
-        {
-          id: 2,
-          paciente: {
-            nombre: 'María González',
-            edad: 42,
-            telefono: '555-0102'
-          },
-          fecha_creacion: '2025-01-05',
-          ultima_actualizacion: '2025-01-14',
-          motivo_consulta: 'Rehabilitación post-cirugía de rodilla',
-          diagnostico_fisioterapeutico: 'Post-quirúrgico de meniscectomía, limitación de rango articular',
-          terapeuta: 'Dra. Ana Martínez',
-          sesiones_completadas: 15,
-          sesiones_programadas: 20,
-          alergias: 'Penicilina',
-          medicamentos_actuales: 'Paracetamol 500mg según necesidad',
-          estado: 'Activo'
-        },
-        {
-          id: 3,
-          paciente: {
-            nombre: 'Roberto Silva',
-            edad: 28,
-            telefono: '555-0103'
-          },
-          fecha_creacion: '2024-12-20',
-          ultima_actualizacion: '2025-01-12',
-          motivo_consulta: 'Lesión deportiva en hombro',
-          diagnostico_fisioterapeutico: 'Tendinitis del supraespinoso, fase subaguda',
-          terapeuta: 'Dr. Luis Hernández',
-          sesiones_completadas: 10,
-          sesiones_programadas: 10,
-          alergias: 'Ninguna',
-          medicamentos_actuales: 'Ninguno',
-          estado: 'Completado'
-        }
-      ];
-      
-      setHistoriales(mockData);
+      const data = await getHistoriales();
+      console.log('Historiales desde la base de datos:', data); // <-- Aquí el console.log
+      setHistoriales(data); // Si tu API responde {data: [...]}, usa setHistoriales(data.data)
     } catch (error) {
       console.error('Error al cargar historiales:', error);
+      setHistoriales([]);
     } finally {
       setLoading(false);
     }
@@ -180,7 +125,12 @@ export default function HistorialesPage() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Promedio Sesiones</p>
               <p className="text-2xl font-bold text-gray-900">
-                {Math.round(historiales.reduce((acc, h) => acc + h.sesiones_completadas, 0) / historiales.length)}
+                {historiales.length > 0
+                  ? Math.round(
+                      historiales.reduce((acc, h) => acc + (h.sesiones_completadas || 0), 0) / historiales.length
+                    )
+                  : 0
+                }
               </p>
             </div>
           </div>

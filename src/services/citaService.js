@@ -55,11 +55,23 @@ export const getMisCitas = async () => {
   try {
     console.log('🔍 Obteniendo mis citas...');
     
-    // Verificar token
+    // Verificar token y usuario
     const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    console.log('🔑 Token presente:', !!token);
+    console.log('👤 Usuario presente:', !!user);
+    
     if (!token) {
+      console.error('❌ No hay token de autenticación en localStorage');
       throw new Error('No hay token de autenticación');
     }
+    
+    // Verificar headers de la petición
+    console.log('📡 Headers de la petición:', {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    });
     
     const response = await api.get('/paciente/mis-citas');
     console.log('✅ Citas obtenidas:', response.data);
@@ -70,6 +82,8 @@ export const getMisCitas = async () => {
     
   } catch (error) {
     console.error('❌ Error al obtener citas:', error);
+    console.error('❌ Status del error:', error.response?.status);
+    console.error('❌ Datos del error:', error.response?.data);
     
     if (error.code === 'ECONNABORTED') {
       throw new Error('Tiempo de espera agotado. Verifica tu conexión a internet.');
@@ -81,6 +95,7 @@ export const getMisCitas = async () => {
     }
     
     if (error.response?.status === 401) {
+      console.error('🔒 Error de autenticación - token inválido o expirado');
       throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
     }
     

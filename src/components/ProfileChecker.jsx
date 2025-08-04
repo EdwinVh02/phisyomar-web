@@ -28,7 +28,6 @@ const ProfileChecker = ({ children }) => {
 
     // Verificar si el perfil está incompleto
     if (!isProfileComplete) {
-      console.log('Perfil incompleto detectado, redirigiendo...');
       navigate('/profile/complete', { 
         replace: true,
         state: { from: location.pathname }

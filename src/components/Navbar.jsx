@@ -125,6 +125,9 @@ const Navbar = React.memo(function Navbar() {
               <Link to="/login" className="bg-white text-blue-700 px-6 py-2 rounded-full hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 font-semibold shadow-lg">
                 Iniciar sesión
               </Link>
+              <Link to="/registrar" className="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 font-semibold shadow-lg ml-2">
+                Registrarse
+              </Link>
             </>
           ) : (
             // Menú de usuario autenticado
@@ -234,6 +237,9 @@ const Navbar = React.memo(function Navbar() {
               <a href="/#contacto" className="block text-blue-100 hover:text-white transition-colors duration-300 py-2">Contacto</a>
               <Link to="/login" className="block w-full bg-white text-blue-700 px-6 py-3 rounded-full hover:bg-blue-50 transition-all duration-300 font-semibold text-center shadow-lg mt-4">
                 Iniciar sesión
+              </Link>
+              <Link to="/registrar" className="block w-full bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition-all duration-300 font-semibold text-center shadow-lg mt-2">
+                Registrarse
               </Link>
             </>
           ) : (

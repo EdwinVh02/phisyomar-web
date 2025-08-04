@@ -20,7 +20,10 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.rol_id)) {
+  // Obtener el rol_id de la estructura correcta
+  const userRoleId = user?.user?.rol_id || user?.rol_id;
+  
+  if (allowedRoles.length > 0 && !allowedRoles.includes(userRoleId)) {
     // Redirigir a una página de acceso denegado o al dashboard
     return <Navigate to="/unauthorized" replace />;
   }

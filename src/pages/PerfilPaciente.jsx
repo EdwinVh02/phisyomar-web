@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { updateProfile } from '../services/usuarioService';
 import useProfile from '../hooks/useProfile';
@@ -30,18 +30,40 @@ export default function PerfilPaciente() {
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  
+  // Obtener datos del usuario con la estructura correcta
+  const userData = user?.user || user;
+  
   const [formData, setFormData] = useState({
-    nombre: user?.nombre || '',
-    apellido_paterno: user?.apellido_paterno || '',
-    apellido_materno: user?.apellido_materno || '',
-    correo_electronico: user?.correo_electronico || '',
-    telefono: user?.telefono || '',
-    direccion: user?.direccion || '',
-    fecha_nacimiento: user?.fecha_nacimiento ? user.fecha_nacimiento.split('T')[0] : '',
-    ocupacion: user?.ocupacion || '',
-    sexo: user?.sexo || '',
-    curp: user?.curp || ''
+    nombre: '',
+    apellido_paterno: '',
+    apellido_materno: '',
+    correo_electronico: '',
+    telefono: '',
+    direccion: '',
+    fecha_nacimiento: '',
+    ocupacion: '',
+    sexo: '',
+    curp: ''
   });
+
+  // Actualizar formData cuando cambie el usuario
+  useEffect(() => {
+    if (userData) {
+      setFormData({
+        nombre: userData?.nombre || '',
+        apellido_paterno: userData?.apellido_paterno || '',
+        apellido_materno: userData?.apellido_materno || '',
+        correo_electronico: userData?.correo_electronico || '',
+        telefono: userData?.telefono || '',
+        direccion: userData?.direccion || '',
+        fecha_nacimiento: userData?.fecha_nacimiento ? userData.fecha_nacimiento.split('T')[0] : '',
+        ocupacion: userData?.ocupacion || '',
+        sexo: userData?.sexo || '',
+        curp: userData?.curp || ''
+      });
+    }
+  }, [userData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -102,16 +124,16 @@ export default function PerfilPaciente() {
 
   const handleCancel = () => {
     setFormData({
-      nombre: user?.nombre || '',
-      apellido_paterno: user?.apellido_paterno || '',
-      apellido_materno: user?.apellido_materno || '',
-      correo_electronico: user?.correo_electronico || '',
-      telefono: user?.telefono || '',
-      direccion: user?.direccion || '',
-      fecha_nacimiento: user?.fecha_nacimiento ? user.fecha_nacimiento.split('T')[0] : '',
-      ocupacion: user?.ocupacion || '',
-      sexo: user?.sexo || '',
-      curp: user?.curp || ''
+      nombre: userData?.nombre || '',
+      apellido_paterno: userData?.apellido_paterno || '',
+      apellido_materno: userData?.apellido_materno || '',
+      correo_electronico: userData?.correo_electronico || '',
+      telefono: userData?.telefono || '',
+      direccion: userData?.direccion || '',
+      fecha_nacimiento: userData?.fecha_nacimiento ? userData.fecha_nacimiento.split('T')[0] : '',
+      ocupacion: userData?.ocupacion || '',
+      sexo: userData?.sexo || '',
+      curp: userData?.curp || ''
     });
     setEditMode(false);
     setMessage({ type: '', text: '' });
@@ -173,7 +195,7 @@ export default function PerfilPaciente() {
                 <User className="w-10 h-10 text-blue-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">
-                {user?.nombre} {user?.apellido_paterno}
+                {userData?.nombre} {userData?.apellido_paterno}
               </h2>
               <p className="text-blue-600 font-medium">Paciente</p>
               <div className="mt-3 flex items-center justify-center gap-2">
@@ -187,7 +209,7 @@ export default function PerfilPaciente() {
                 <Mail className="w-5 h-5 text-blue-600" />
                 <div className="flex-1">
                   <p className="text-sm text-gray-600">Correo</p>
-                  <p className="font-medium text-gray-900">{user?.correo_electronico}</p>
+                  <p className="font-medium text-gray-900">{userData?.correo_electronico}</p>
                 </div>
               </div>
               
@@ -195,7 +217,7 @@ export default function PerfilPaciente() {
                 <Phone className="w-5 h-5 text-blue-600" />
                 <div className="flex-1">
                   <p className="text-sm text-gray-600">Teléfono</p>
-                  <p className="font-medium text-gray-900">{user?.telefono || 'No especificado'}</p>
+                  <p className="font-medium text-gray-900">{userData?.telefono || 'No especificado'}</p>
                 </div>
               </div>
               
@@ -203,7 +225,7 @@ export default function PerfilPaciente() {
                 <Cake className="w-5 h-5 text-blue-600" />
                 <div className="flex-1">
                   <p className="text-sm text-gray-600">Edad</p>
-                  <p className="font-medium text-gray-900">{calcularEdad(user?.fecha_nacimiento)}</p>
+                  <p className="font-medium text-gray-900">{calcularEdad(userData?.fecha_nacimiento)}</p>
                 </div>
               </div>
             </div>
@@ -257,7 +279,7 @@ export default function PerfilPaciente() {
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{user?.nombre}</p>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{userData?.nombre}</p>
                   )}
                 </div>
 
@@ -275,7 +297,7 @@ export default function PerfilPaciente() {
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{user?.apellido_paterno}</p>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{userData?.apellido_paterno}</p>
                   )}
                 </div>
 
@@ -290,7 +312,7 @@ export default function PerfilPaciente() {
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{user?.apellido_materno || 'No especificado'}</p>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{userData?.apellido_materno || 'No especificado'}</p>
                   )}
                 </div>
 
@@ -305,7 +327,7 @@ export default function PerfilPaciente() {
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{formatearFecha(user?.fecha_nacimiento)}</p>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{formatearFecha(userData?.fecha_nacimiento)}</p>
                   )}
                 </div>
 
@@ -325,7 +347,7 @@ export default function PerfilPaciente() {
                     </select>
                   ) : (
                     <p className="p-3 bg-gray-50 rounded-lg text-gray-900">
-                      {user?.sexo || 'No especificado'}
+                      {userData?.sexo || 'No especificado'}
                     </p>
                   )}
                 </div>
@@ -341,7 +363,7 @@ export default function PerfilPaciente() {
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{user?.ocupacion || 'No especificada'}</p>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{userData?.ocupacion || 'No especificada'}</p>
                   )}
                 </div>
               </div>
@@ -404,7 +426,7 @@ export default function PerfilPaciente() {
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{user?.correo_electronico}</p>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{userData?.correo_electronico}</p>
                   )}
                 </div>
 
@@ -419,7 +441,7 @@ export default function PerfilPaciente() {
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{user?.telefono || 'No especificado'}</p>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{userData?.telefono || 'No especificado'}</p>
                   )}
                 </div>
 
@@ -434,7 +456,7 @@ export default function PerfilPaciente() {
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{user?.direccion || 'No especificada'}</p>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{userData?.direccion || 'No especificada'}</p>
                   )}
                 </div>
               </div>
@@ -464,7 +486,7 @@ export default function PerfilPaciente() {
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{user?.curp || 'No especificado'}</p>
+                    <p className="p-3 bg-gray-50 rounded-lg text-gray-900">{userData?.curp || 'No especificado'}</p>
                   )}
                 </div>
 

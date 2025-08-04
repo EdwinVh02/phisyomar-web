@@ -18,49 +18,6 @@ import {
 } from "lucide-react";
 import { getUsuarios } from '../services';
 
-const usuariosMock = [
-  { 
-    id: 1, 
-    nombre: "Juan Pérez", 
-    correo: "juan@mail.com", 
-    telefono: "+52 229 123 4567",
-    fechaRegistro: "2024-01-15",
-    status: "activo",
-    avatar: "JP",
-    ultimaVisita: "2024-07-01"
-  },
-  { 
-    id: 2, 
-    nombre: "Ana López", 
-    correo: "ana@mail.com", 
-    telefono: "+52 229 987 6543",
-    fechaRegistro: "2024-02-20",
-    status: "inactivo",
-    avatar: "AL",
-    ultimaVisita: "2024-06-15"
-  },
-  { 
-    id: 3, 
-    nombre: "Carlos Mendoza", 
-    correo: "carlos@mail.com", 
-    telefono: "+52 229 456 7890",
-    fechaRegistro: "2024-03-10",
-    status: "activo",
-    avatar: "CM",
-    ultimaVisita: "2024-07-05"
-  },
-  { 
-    id: 4, 
-    nombre: "María García", 
-    correo: "maria@mail.com", 
-    telefono: "+52 229 321 6547",
-    fechaRegistro: "2024-04-05",
-    status: "pendiente",
-    avatar: "MG",
-    ultimaVisita: "2024-06-28"
-  },
-];
-
 export default function UsuariosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("todos");
@@ -116,16 +73,8 @@ export default function UsuariosPage() {
       console.error('❌ Error al cargar usuarios:', err);
       setError(err.message);
       
-      // Solo usar fallback si hay un error real, no si simplemente no hay datos
-      if (err.message.includes('Network Error') || err.message.includes('500') || err.message.includes('403')) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('⚠️ Usando datos mock como fallback debido a error de red/servidor');
-        }
-        setUsuarios(usuariosMock);
-      } else {
-        // Para otros errores (como 401 Unauthorized), no mostrar datos mock
-        setUsuarios([]);
-      }
+      // En caso de error, mostrar array vacío - no usar datos mock
+      setUsuarios([]);
     } finally {
       setLoading(false);
     }
@@ -428,7 +377,7 @@ export default function UsuariosPage() {
         {filteredUsers.length > 0 && (
           <div className="mt-8 flex items-center justify-between bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl">
             <div className="text-sm text-slate-600">
-              Mostrando {filteredUsers.length} de {usuariosMock.length} usuarios
+              Mostrando {filteredUsers.length} de {usuarios.length} usuarios
             </div>
             <div className="flex items-center gap-2">
               <button className="px-4 py-2 bg-white/50 border border-white/20 rounded-lg hover:bg-white/80 transition-colors text-sm font-medium">

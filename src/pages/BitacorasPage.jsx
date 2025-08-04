@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Filter, Clock, User, Activity, Eye, Download, Calendar } from 'lucide-react';
+import bitacoraService from '../services/bitacoraService'; // Asegúrate de importar el servicio
 
 export default function BitacorasPage() {
   const [bitacoras, setBitacoras] = useState([]);
@@ -15,102 +16,16 @@ export default function BitacorasPage() {
   const fetchBitacoras = async () => {
     try {
       setLoading(true);
-      
-      // Datos de ejemplo
-      const mockData = [
-        {
-          id: 1,
-          tipo: 'LOGIN',
-          usuario: 'admin@phisyomar.com',
-          accion: 'Inicio de sesión exitoso',
-          ip_address: '192.168.1.100',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          timestamp: '2025-01-22 14:30:25',
-          detalles: 'Usuario administrador accedió al sistema',
-          nivel: 'INFO'
-        },
-        {
-          id: 2,
-          tipo: 'CRUD',
-          usuario: 'dr.lopez@phisyomar.com',
-          accion: 'Creación de nuevo paciente',
-          ip_address: '192.168.1.101',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          timestamp: '2025-01-22 14:25:10',
-          detalles: 'Nuevo paciente: Juan Pérez García (ID: 1247)',
-          nivel: 'INFO'
-        },
-        {
-          id: 3,
-          tipo: 'CITA',
-          usuario: 'recepcion@phisyomar.com',
-          accion: 'Programación de cita',
-          ip_address: '192.168.1.102',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          timestamp: '2025-01-22 14:20:45',
-          detalles: 'Cita programada para Juan Pérez - 2025-01-25 10:00',
-          nivel: 'INFO'
-        },
-        {
-          id: 4,
-          tipo: 'PAGO',
-          usuario: 'admin@phisyomar.com',
-          accion: 'Procesamiento de pago',
-          ip_address: '192.168.1.100',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          timestamp: '2025-01-22 14:15:30',
-          detalles: 'Pago procesado: $850.00 - Transacción TXN-001-2025',
-          nivel: 'INFO'
-        },
-        {
-          id: 5,
-          tipo: 'ERROR',
-          usuario: 'sistema',
-          accion: 'Error de conexión a base de datos',
-          ip_address: '192.168.1.1',
-          user_agent: 'Sistema Internal',
-          timestamp: '2025-01-22 14:10:15',
-          detalles: 'Error: Connection timeout después de 30 segundos',
-          nivel: 'ERROR'
-        },
-        {
-          id: 6,
-          tipo: 'LOGOUT',
-          usuario: 'dr.martinez@phisyomar.com',
-          accion: 'Cierre de sesión',
-          ip_address: '192.168.1.103',
-          user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          timestamp: '2025-01-22 14:05:00',
-          detalles: 'Usuario cerró sesión normalmente',
-          nivel: 'INFO'
-        },
-        {
-          id: 7,
-          tipo: 'BACKUP',
-          usuario: 'sistema',
-          accion: 'Respaldo automático completado',
-          ip_address: '192.168.1.1',
-          user_agent: 'Sistema Internal',
-          timestamp: '2025-01-22 14:00:00',
-          detalles: 'Respaldo de base de datos completado exitosamente - 2.3GB',
-          nivel: 'INFO'
-        },
-        {
-          id: 8,
-          tipo: 'SECURITY',
-          usuario: 'unknown',
-          accion: 'Intento de acceso no autorizado',
-          ip_address: '203.0.113.42',
-          user_agent: 'curl/7.68.0',
-          timestamp: '2025-01-22 13:55:22',
-          detalles: 'Múltiples intentos de login fallidos desde IP externa',
-          nivel: 'WARNING'
-        }
-      ];
-      
-      setBitacoras(mockData);
+      const response = await bitacoraService.getAll();
+      console.log('Bitácoras desde la base de datos:', response); // <-- Aquí el console.log
+      if (response.success) {
+        setBitacoras(response.data || []);
+      } else {
+        setBitacoras([]);
+      }
     } catch (error) {
       console.error('Error al cargar bitácoras:', error);
+      setBitacoras([]);
     } finally {
       setLoading(false);
     }
@@ -118,14 +33,14 @@ export default function BitacorasPage() {
 
   const filteredBitacoras = bitacoras.filter(bitacora => {
     const matchesSearch = 
-      bitacora.usuario.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bitacora.accion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bitacora.detalles.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bitacora.ip_address.includes(searchTerm);
+      (bitacora.usuario || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (bitacora.accion || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (bitacora.detalles || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (bitacora.ip_address || '').includes(searchTerm);
     
-    const matchesTipo = tipoFilter === 'todos' || bitacora.tipo.toLowerCase() === tipoFilter.toLowerCase();
+    const matchesTipo = tipoFilter === 'todos' || (bitacora.tipo || '').toLowerCase() === tipoFilter.toLowerCase();
     
-    const matchesFecha = !fechaFilter || bitacora.timestamp.startsWith(fechaFilter);
+    const matchesFecha = !fechaFilter || (bitacora.timestamp || '').startsWith(fechaFilter);
     
     return matchesSearch && matchesTipo && matchesFecha;
   });

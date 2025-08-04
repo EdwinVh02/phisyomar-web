@@ -18,7 +18,8 @@ import {
   Legend,
   LineElement,
   PointElement,
-  ArcElement
+  ArcElement,
+  Filler
 } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
 
@@ -31,7 +32,8 @@ ChartJS.register(
   ArcElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 export default function EstadisticasPage() {
@@ -46,7 +48,7 @@ export default function EstadisticasPage() {
 
   const fetchEstadisticas = async () => {
     const result = await execute(
-      () => estadisticaService.getDashboard(timeRange),
+      () => estadisticaService.getDashboard({ timeRange }), // <-- PASA UN OBJETO
       {
         errorMessage: 'Error al cargar estadísticas del dashboard',
         showErrorToast: true

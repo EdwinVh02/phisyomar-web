@@ -1,5 +1,18 @@
 import api from './api';
 
+// Obtener todos los pagos (para administradores)
+export const getPagos = async () => {
+  try {
+    console.log('🔍 Obteniendo pagos desde la base de datos...');
+    const response = await api.get('/pagos');
+    console.log('✅ Pagos obtenidos:', response.data);
+    return response.data?.data || response.data || [];
+  } catch (error) {
+    console.error('❌ Error al obtener pagos:', error);
+    throw new Error(error.response?.data?.message || 'Error al obtener pagos');
+  }
+};
+
 // Crear orden de pago
 export const crearOrdenPago = async (pagoData) => {
   try {
@@ -47,61 +60,7 @@ export const getHistorialPagos = async () => {
   }
 };
 
-// Datos de ejemplo para desarrollo
-const getPagosEjemplo = () => {
-  return [
-    {
-      id: 1,
-      fecha: '2025-01-15',
-      concepto: 'Consulta de Fisioterapia',
-      monto: 800,
-      estado: 'pagado',
-      metodoPago: 'PayPal',
-      numeroFactura: 'F-2025-001',
-      terapeuta: 'Dr. Juan González',
-      sesion: 'Rehabilitación lumbar',
-      vencimiento: '2025-01-30',
-      transaccionId: 'PAYPAL-12345'
-    },
-    {
-      id: 2,
-      fecha: '2025-01-08',
-      concepto: 'Sesión de Rehabilitación',
-      monto: 600,
-      estado: 'pagado',
-      metodoPago: 'PayPal',
-      numeroFactura: 'F-2025-002',
-      terapeuta: 'Dr. Juan González',
-      sesion: 'Terapia manual',
-      vencimiento: '2025-01-23',
-      transaccionId: 'PAYPAL-12346'
-    },
-    {
-      id: 3,
-      fecha: '2025-01-01',
-      concepto: 'Evaluación Inicial',
-      monto: 1,
-      estado: 'pendiente',
-      metodoPago: 'Pendiente',
-      numeroFactura: 'F-2025-003',
-      terapeuta: 'Dr. Juan González',
-      sesion: 'Evaluación completa',
-      vencimiento: '2025-01-16'
-    },
-    {
-      id: 4,
-      fecha: '2024-12-20',
-      concepto: 'Terapia de Rehabilitación',
-      monto: 950,
-      estado: 'pendiente',
-      metodoPago: 'Pendiente',
-      numeroFactura: 'F-2024-045',
-      terapeuta: 'Dra. María López',
-      sesion: 'Rehabilitación de rodilla',
-      vencimiento: '2025-01-05'
-    }
-  ];
-};
+// Función removida - ya no se usan datos hardcodeados
 
 // Descargar factura
 export const descargarFactura = async (facturaId) => {
@@ -125,21 +84,6 @@ export const descargarFactura = async (facturaId) => {
     return true;
   } catch (error) {
     console.error('❌ Error al descargar factura:', error);
-    // Simulación de descarga para desarrollo
-    if (error.response?.status === 404) {
-      console.log('ℹ️ Simulando descarga de factura');
-      const fakeContent = `Factura No. ${facturaId}\nClínica PhysioMar\nTotal: $${Math.random() * 1000 + 500}\nFecha: ${new Date().toLocaleDateString()}`;
-      const blob = new Blob([fakeContent], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `factura-${facturaId}.txt`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      return true;
-    }
     throw new Error(error.response?.data?.message || 'Error al descargar factura');
   }
 };

@@ -123,4 +123,28 @@ export const recepcionistaService = {
   }
 };
 
+// Exportaciones individuales para compatibilidad
+export const getRecepcionistas = async () => {
+  const result = await recepcionistaService.getAll();
+  return result.success ? result.data : [];
+};
+
+export const createRecepcionista = async (data) => {
+  const result = await recepcionistaService.create(data);
+  if (!result.success) throw new Error(result.error);
+  return result.data;
+};
+
+export const updateRecepcionista = async (id, data) => {
+  const result = await recepcionistaService.update(id, data);
+  if (!result.success) throw new Error(result.error);
+  return result.data;
+};
+
+export const deleteRecepcionista = async (id) => {
+  const result = await recepcionistaService.delete(id);
+  if (!result.success) throw new Error(result.error);
+  return result.message;
+};
+
 export default recepcionistaService;

@@ -230,7 +230,7 @@ export default function Sidebar({ collapsed = true, setCollapsed }) {
                     </div>
                     {!collapsed && (
                       <span className={`font-medium text-sm ${
-                        isActive ? 'text-blue-700' : 'text-slate-700 group-hover:text-slate-900'
+                        isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'
                       } transition-colors duration-200`}>
                         {item.title}
                       </span>

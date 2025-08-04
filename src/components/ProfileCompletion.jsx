@@ -16,6 +16,7 @@ const ProfileCompletion = () => {
     clearError 
   } = useProfile();
 
+
   const [formData, setFormData] = useState({
     contacto_emergencia_nombre: '',
     contacto_emergencia_telefono: '',
@@ -43,7 +44,10 @@ const ProfileCompletion = () => {
       await completeProfile(formData);
       
       // Redirigir según el rol después de completar el perfil
-      switch (user?.rol_id) {
+      const userData = user?.user || user;
+      const roleId = userData?.rol_id;
+      
+      switch (roleId) {
         case 4: // Paciente
           navigate('/paciente/dashboard');
           break;
@@ -65,7 +69,10 @@ const ProfileCompletion = () => {
   };
 
   const getFormTitle = () => {
-    switch (user?.rol_id) {
+    const userData = user?.user || user;
+    const roleId = userData?.rol_id;
+    
+    switch (roleId) {
       case 4:
         return 'Completar Perfil de Paciente';
       case 2:
@@ -243,14 +250,27 @@ const ProfileCompletion = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            {user?.rol_id === 4 && renderPacienteForm()}
-            
-            {/* Aquí puedes agregar formularios para otros roles */}
-            {user?.rol_id === 2 && (
-              <div className="text-center py-8">
-                <p className="text-gray-600">Formulario de terapeuta en desarrollo</p>
-              </div>
-            )}
+            {(() => {
+              const userData = user?.user || user;
+              const roleId = userData?.rol_id;
+              
+              if (roleId === 4) {
+                return renderPacienteForm();
+              } else if (roleId === 2) {
+                return (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">Formulario de terapeuta en desarrollo</p>
+                  </div>
+                );
+              } else {
+                return (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">Rol no reconocido: {roleId}</p>
+                    <p className="text-sm text-gray-500 mt-2">Estructura del usuario: {JSON.stringify(user, null, 2)}</p>
+                  </div>
+                );
+              }
+            })()}
 
             <div className="mt-8 flex justify-end space-x-4">
               <Button

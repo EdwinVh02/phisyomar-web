@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, Eye, MapPin, Phone, Clock, Users } from 'lucide-react';
+import { getClinicas, createClinica, updateClinica, deleteClinica } from '../services/clinicaService';
 
 export default function ClinicasPage() {
   const [clinicas, setClinicas] = useState([]);
@@ -15,56 +16,16 @@ export default function ClinicasPage() {
   const fetchClinicas = async () => {
     try {
       setLoading(true);
-      // Aquí iría la llamada a la API
-      // const response = await fetch('/api/clinicas');
-      // const data = await response.json();
+      console.log('🔍 Cargando clínicas desde la base de datos...');
+      const data = await getClinicas();
+      console.log('✅ Clínicas obtenidas:', data);
       
-      // Datos de ejemplo
-      const mockData = [
-        {
-          id: 1,
-          nombre: 'PhisyoMar Centro',
-          direccion: 'Av. Revolución 1234, Col. Centro, CDMX',
-          telefono: '555-0100',
-          email: 'centro@phisyomar.com',
-          horario_apertura: '08:00',
-          horario_cierre: '20:00',
-          capacidad: 50,
-          especialidades: ['Fisioterapia', 'Rehabilitación', 'Terapia Deportiva'],
-          status: 'Activo',
-          fecha_apertura: '2020-01-15'
-        },
-        {
-          id: 2,
-          nombre: 'PhisyoMar Norte',
-          direccion: 'Av. Insurgentes Norte 5678, Col. Lindavista, CDMX',
-          telefono: '555-0200',
-          email: 'norte@phisyomar.com',
-          horario_apertura: '07:00',
-          horario_cierre: '19:00',
-          capacidad: 35,
-          especialidades: ['Fisioterapia', 'Masoterapia'],
-          status: 'Activo',
-          fecha_apertura: '2021-03-20'
-        },
-        {
-          id: 3,
-          nombre: 'PhisyoMar Sur',
-          direccion: 'Calz. de Tlalpan 9101, Col. Portales, CDMX',
-          telefono: '555-0300',
-          email: 'sur@phisyomar.com',
-          horario_apertura: '09:00',
-          horario_cierre: '18:00',
-          capacidad: 25,
-          especialidades: ['Fisioterapia', 'Rehabilitación Neurológica'],
-          status: 'Mantenimiento',
-          fecha_apertura: '2022-06-10'
-        }
-      ];
-      
-      setClinicas(mockData);
+      // Asegurar que siempre sea un array
+      const clinicasList = Array.isArray(data) ? data : (data?.data || []);
+      setClinicas(clinicasList);
     } catch (error) {
-      console.error('Error al cargar clínicas:', error);
+      console.error('❌ Error al cargar clínicas:', error);
+      setClinicas([]); // Array vacío si hay error
     } finally {
       setLoading(false);
     }

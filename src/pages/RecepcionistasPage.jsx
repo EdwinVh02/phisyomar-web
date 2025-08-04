@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, Eye, Phone, Mail, MapPin } from 'lucide-react';
+import { getRecepcionistas, createRecepcionista, updateRecepcionista, deleteRecepcionista } from '../services/recepcionistaService';
 
 export default function RecepcionistasPage() {
   const [recepcionistas, setRecepcionistas] = useState([]);
@@ -15,52 +16,34 @@ export default function RecepcionistasPage() {
   const fetchRecepcionistas = async () => {
     try {
       setLoading(true);
-      // Aquí iría la llamada a la API
-      // const response = await fetch('/api/recepcionistas');
-      // const data = await response.json();
+      console.log('🔍 Cargando recepcionistas desde la base de datos...');
+      const data = await getRecepcionistas();
+      console.log('✅ Recepcionistas obtenidos:', data);
       
-      // Datos de ejemplo
-      const mockData = [
-        {
-          id: 1,
-          nombre: 'María',
-          apellido_paterno: 'González',
-          apellido_materno: 'López',
-          email: 'maria.gonzalez@phisyomar.com',
-          telefono: '555-0101',
-          direccion: 'Av. Reforma 123, CDMX',
-          fecha_contratacion: '2023-06-15',
-          turno: 'Matutino',
-          status: 'Activo'
-        },
-        {
-          id: 2,
-          nombre: 'Ana',
-          apellido_paterno: 'Martínez',
-          apellido_materno: 'Silva',
-          email: 'ana.martinez@phisyomar.com',
-          telefono: '555-0102',
-          direccion: 'Calle Juárez 456, CDMX',
-          fecha_contratacion: '2023-08-20',
-          turno: 'Vespertino',
-          status: 'Activo'
-        }
-      ];
+      // Asegurar que siempre sea un array
+      const recepcionistasList = Array.isArray(data) ? data : (data?.data || []);
+      setRecepcionistas(recepcionistasList);
       
-      setRecepcionistas(mockData);
     } catch (error) {
-      console.error('Error al cargar recepcionistas:', error);
+      console.error('❌ Error al cargar recepcionistas:', error);
+      setRecepcionistas([]); // Array vacío si hay error
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredRecepcionistas = recepcionistas.filter(recepcionista =>
-    `${recepcionista.nombre} ${recepcionista.apellido_paterno} ${recepcionista.apellido_materno}`
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase()) ||
-    recepcionista.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRecepcionistas = recepcionistas.filter(recepcionista => {
+    if (!recepcionista) return false;
+    
+    const nombre = recepcionista.usuario ? 
+      `${recepcionista.usuario.nombre || ''} ${recepcionista.usuario.apellido_paterno || ''} ${recepcionista.usuario.apellido_materno || ''}`
+      : `${recepcionista.nombre || ''} ${recepcionista.apellido_paterno || ''} ${recepcionista.apellido_materno || ''}`;
+    
+    const email = recepcionista.usuario?.correo_electronico || recepcionista.email || '';
+    
+    return nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           email.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const handleEdit = (recepcionista) => {
     setSelectedRecepcionista(recepcionista);

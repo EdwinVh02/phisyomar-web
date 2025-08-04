@@ -1,12 +1,25 @@
 import api from './api';
 
-// Obtener todos los historiales médicos
+// Obtener todos los historiales médicos (para admin)
 export const getHistoriales = async () => {
   try {
     const response = await api.get('/historiales');
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Error al obtener historiales');
+  }
+};
+
+// Obtener historial médico del paciente logueado
+export const getMiHistorialMedico = async () => {
+  try {
+    console.log('🔍 Obteniendo mi historial médico...');
+    const response = await api.get('/paciente/mi-historial-medico');
+    console.log('✅ Mi historial obtenido:', response.data);
+    return response.data?.data || response.data || [];
+  } catch (error) {
+    console.error('❌ Error al obtener mi historial:', error);
+    throw new Error(error.response?.data?.message || 'Error al obtener mi historial médico');
   }
 };
 

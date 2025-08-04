@@ -4,6 +4,7 @@ import {
   Mail, UserCheck, Calendar, MoreVertical, Stethoscope, MapPin
 } from 'lucide-react';
 import { useToast } from '../hooks/useToast';
+import { getTerapeutas, createTerapeuta, updateTerapeuta, deleteTerapeuta } from '../services/terapeutaService';
 
 export default function TerapeutasPage() {
   const [terapeutas, setTerapeutas] = useState([]);
@@ -28,87 +29,50 @@ export default function TerapeutasPage() {
 
   const cargarTerapeutas = async () => {
     try {
-      // Datos de ejemplo más completos
-      setTerapeutas([
-        {
-          id: 1,
-          numero_cedula: '12345678',
-          telefono_consultorio: '555-0101',
-          especialidad: 'Fisioterapia Deportiva',
-          años_experiencia: 8,
-          pacientes_activos: 25,
-          citas_mes: 120,
-          calificacion: 4.8,
-          status: 'Activo',
-          usuario: {
-            nombre: 'Dr. Juan Carlos',
-            apellido_paterno: 'González',
-            apellido_materno: 'López',
-            correo_electronico: 'juan.gonzalez@phisyomar.com',
-            telefono: '555-1234'
-          }
-        },
-        {
-          id: 2,
-          numero_cedula: '87654321',
-          telefono_consultorio: '555-0102',
-          especialidad: 'Rehabilitación Neurológica',
-          años_experiencia: 12,
-          pacientes_activos: 18,
-          citas_mes: 95,
-          calificacion: 4.9,
-          status: 'Activo',
-          usuario: {
-            nombre: 'Dra. María Elena',
-            apellido_paterno: 'Rodríguez',
-            apellido_materno: 'Martínez',
-            correo_electronico: 'maria.rodriguez@phisyomar.com',
-            telefono: '555-5678'
-          }
-        },
-        {
-          id: 3,
-          numero_cedula: '45678912',
-          telefono_consultorio: '555-0103',
-          especialidad: 'Fisioterapia General',
-          años_experiencia: 5,
-          pacientes_activos: 32,
-          citas_mes: 140,
-          calificacion: 4.7,
-          status: 'Activo',
-          usuario: {
-            nombre: 'Dr. Luis',
-            apellido_paterno: 'Hernández',
-            apellido_materno: 'Torres',
-            correo_electronico: 'luis.hernandez@phisyomar.com',
-            telefono: '555-9012'
-          }
-        }
-      ]);
+      setLoading(true);
+      console.log('🔍 Cargando terapeutas desde la base de datos...');
+      const data = await getTerapeutas();
+      console.log('✅ Terapeutas obtenidos:', data);
+      
+      // Asegurar que siempre sea un array
+      const terapeutasList = Array.isArray(data) ? data : (data?.data || []);
+      setTerapeutas(terapeutasList);
+      
     } catch (error) {
-      console.error('Error al cargar terapeutas:', error);
+      console.error('❌ Error al cargar terapeutas:', error);
+      setTerapeutas([]); // Array vacío si hay error
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredTerapeutas = terapeutas.filter(terapeuta =>
-    `${terapeuta.usuario.nombre} ${terapeuta.usuario.apellido_paterno} ${terapeuta.usuario.apellido_materno}`
-      .toLowerCase().includes(searchTerm.toLowerCase()) ||
-    terapeuta.usuario.correo_electronico.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTerapeutas = terapeutas.filter(terapeuta => {
+    if (!terapeuta || !terapeuta.usuario) return false;
+    
+    const nombreCompleto = `${terapeuta.usuario.nombre || ''} ${terapeuta.usuario.apellido_paterno || ''} ${terapeuta.usuario.apellido_materno || ''}`;
+    const correo = terapeuta.usuario.correo_electronico || '';
+    
+    return nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           correo.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Lógica para crear/actualizar terapeuta
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Datos del terapeuta:', formData);
+      if (selectedTerapeuta) {
+        // Actualizar terapeuta existente
+        await updateTerapeuta(selectedTerapeuta.id, formData);
+        showWarning('Terapeuta actualizado exitosamente');
+      } else {
+        // Crear nuevo terapeuta
+        await createTerapeuta(formData);
+        showWarning('Terapeuta creado exitosamente');
       }
       setShowModal(false);
       cargarTerapeutas();
     } catch (error) {
       console.error('Error al guardar terapeuta:', error);
+      showWarning(`Error: ${error.message}`);
     }
   };
 
@@ -127,18 +91,15 @@ export default function TerapeutasPage() {
   };
 
   const handleDelete = async (id) => {
-    showWarning('¿Está seguro de eliminar este terapeuta?');
-    // Simulate user confirmation with a timeout or assume they confirmed
-    const userConfirmed = true; // You might want to implement a proper modal confirmation
+    const userConfirmed = window.confirm('¿Está seguro de eliminar este terapeuta? Esta acción no se puede deshacer.');
     if (userConfirmed) {
       try {
-        // Lógica para eliminar terapeuta
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Eliminar terapeuta:', id);
-        }
+        await deleteTerapeuta(id);
+        showWarning('Terapeuta eliminado exitosamente');
         cargarTerapeutas();
       } catch (error) {
         console.error('Error al eliminar terapeuta:', error);
+        showWarning(`Error al eliminar: ${error.message}`);
       }
     }
   };
@@ -218,7 +179,7 @@ export default function TerapeutasPage() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Pacientes Activos</p>
               <p className="text-2xl font-bold text-gray-900">
-                {terapeutas.reduce((sum, t) => sum + t.pacientes_activos, 0)}
+                {terapeutas.reduce((sum, t) => sum + (t.pacientes_activos || 0), 0)}
               </p>
             </div>
           </div>
@@ -232,7 +193,7 @@ export default function TerapeutasPage() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Citas del Mes</p>
               <p className="text-2xl font-bold text-gray-900">
-                {terapeutas.reduce((sum, t) => sum + t.citas_mes, 0)}
+                {terapeutas.reduce((sum, t) => sum + (t.citas_mes || 0), 0)}
               </p>
             </div>
           </div>
@@ -246,7 +207,10 @@ export default function TerapeutasPage() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Calificación Promedio</p>
               <p className="text-2xl font-bold text-gray-900">
-                {(terapeutas.reduce((sum, t) => sum + t.calificacion, 0) / terapeutas.length).toFixed(1)}
+                {terapeutas.length > 0 
+                  ? (terapeutas.reduce((sum, t) => sum + (t.calificacion || 0), 0) / terapeutas.length).toFixed(1)
+                  : '0.0'
+                }
               </p>
             </div>
           </div>
@@ -292,52 +256,52 @@ export default function TerapeutasPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold">
-                          {terapeuta.usuario.nombre.charAt(0)}{terapeuta.usuario.apellido_paterno.charAt(0)}
+                          {terapeuta.usuario?.nombre?.charAt(0) || 'T'}{terapeuta.usuario?.apellido_paterno?.charAt(0) || ''}
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {terapeuta.usuario.nombre} {terapeuta.usuario.apellido_paterno} {terapeuta.usuario.apellido_materno}
+                            {terapeuta.usuario?.nombre || 'Sin nombre'} {terapeuta.usuario?.apellido_paterno || ''} {terapeuta.usuario?.apellido_materno || ''}
                           </div>
-                          <div className="text-sm text-gray-500">Cédula: {terapeuta.numero_cedula}</div>
+                          <div className="text-sm text-gray-500">Cédula: {terapeuta.numero_cedula || 'No disponible'}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Stethoscope className="w-4 h-4 text-blue-500" />
-                        <span className="text-sm text-gray-900">{terapeuta.especialidad}</span>
+                        <span className="text-sm text-gray-900">{terapeuta.especialidad || 'Especialidad general'}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 flex items-center gap-1">
                         <Mail className="w-4 h-4 text-gray-400" />
-                        {terapeuta.usuario.correo_electronico}
+                        {terapeuta.usuario?.correo_electronico || 'No disponible'}
                       </div>
                       <div className="text-sm text-gray-500 flex items-center gap-1">
                         <Phone className="w-4 h-4 text-gray-400" />
-                        {terapeuta.usuario.telefono}
+                        {terapeuta.usuario?.telefono || 'No disponible'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {terapeuta.años_experiencia} años
+                      {terapeuta.años_experiencia || 0} años
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{terapeuta.pacientes_activos} activos</div>
-                      <div className="text-sm text-gray-500">{terapeuta.citas_mes} citas/mes</div>
+                      <div className="text-sm text-gray-900">{terapeuta.pacientes_activos || 0} activos</div>
+                      <div className="text-sm text-gray-500">{terapeuta.citas_mes || 0} citas/mes</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="text-sm font-medium text-gray-900">{terapeuta.calificacion}</div>
+                        <div className="text-sm font-medium text-gray-900">{terapeuta.calificacion || '0.0'}</div>
                         <div className="ml-1 text-yellow-400">⭐</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        terapeuta.status === 'Activo'
+                        (terapeuta.status || terapeuta.estado) === 'Activo'
                           ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {terapeuta.status}
+                        {terapeuta.status || terapeuta.estado || 'Sin estado'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

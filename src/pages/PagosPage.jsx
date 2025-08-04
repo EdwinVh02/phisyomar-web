@@ -3,6 +3,7 @@ import {
   Search, Filter, Download, Plus, Eye, CreditCard, 
   DollarSign, Calendar, User, CheckCircle, XCircle, Clock
 } from 'lucide-react';
+import { getPagos } from '../services/pagoService';
 
 export default function PagosPage() {
   const [pagos, setPagos] = useState([]);
@@ -18,82 +19,38 @@ export default function PagosPage() {
   const fetchPagos = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Cargando pagos desde la base de datos...');
+      const data = await getPagos();
+      console.log('✅ Pagos obtenidos:', data);
       
-      // Datos de ejemplo - en producción vendrían de la API
-      const mockData = [
-        {
-          id: 1,
-          paciente: 'Juan Pérez García',
-          concepto: 'Sesión de Fisioterapia',
-          monto: 850,
-          fecha: '2025-01-15',
-          metodo_pago: 'Tarjeta de Crédito',
-          status: 'Completado',
-          numero_transaccion: 'TXN-001-2025',
-          terapeuta: 'Dr. Carlos López'
-        },
-        {
-          id: 2,
-          paciente: 'María González',
-          concepto: 'Paquete 5 sesiones',
-          monto: 4000,
-          fecha: '2025-01-14',
-          metodo_pago: 'Efectivo',
-          status: 'Completado',
-          numero_transaccion: 'TXN-002-2025',
-          terapeuta: 'Dra. Ana Martínez'
-        },
-        {
-          id: 3,
-          paciente: 'Roberto Silva',
-          concepto: 'Evaluación Inicial',
-          monto: 650,
-          fecha: '2025-01-13',
-          metodo_pago: 'Transferencia',
-          status: 'Pendiente',
-          numero_transaccion: 'TXN-003-2025',
-          terapeuta: 'Dr. Luis Hernández'
-        },
-        {
-          id: 4,
-          paciente: 'Carmen López',
-          concepto: 'Masoterapia',
-          monto: 750,
-          fecha: '2025-01-12',
-          metodo_pago: 'Tarjeta de Débito',
-          status: 'Fallido',
-          numero_transaccion: 'TXN-004-2025',
-          terapeuta: 'Lic. Sofia Ruiz'
-        },
-        {
-          id: 5,
-          paciente: 'Diego Ramírez',
-          concepto: 'Rehabilitación Deportiva',
-          monto: 1200,
-          fecha: '2025-01-11',
-          metodo_pago: 'Tarjeta de Crédito',
-          status: 'Completado',
-          numero_transaccion: 'TXN-005-2025',
-          terapeuta: 'Dr. Miguel Torres'
-        }
-      ];
+      // Asegurar que siempre sea un array
+      const pagosList = Array.isArray(data) ? data : (data?.data || []);
+      setPagos(pagosList);
       
-      setPagos(mockData);
     } catch (error) {
-      console.error('Error al cargar pagos:', error);
+      console.error('❌ Error al cargar pagos:', error);
+      setPagos([]); // Array vacío si hay error
     } finally {
       setLoading(false);
     }
   };
 
   const filteredPagos = pagos.filter(pago => {
-    const matchesSearch = pago.paciente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         pago.concepto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         pago.numero_transaccion.toLowerCase().includes(searchTerm.toLowerCase());
+    if (!pago) return false;
     
-    const matchesStatus = statusFilter === 'todos' || pago.status.toLowerCase() === statusFilter.toLowerCase();
+    const paciente = pago.paciente || pago.usuario?.nombre || '';
+    const concepto = pago.concepto || pago.descripcion || '';
+    const transaccion = pago.numero_transaccion || pago.referencia || '';
     
-    const matchesDate = !dateFilter || pago.fecha === dateFilter;
+    const matchesSearch = paciente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         concepto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         transaccion.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const status = pago.status || pago.estado || '';
+    const matchesStatus = statusFilter === 'todos' || status.toLowerCase() === statusFilter.toLowerCase();
+    
+    const fecha = pago.fecha || pago.fecha_pago || '';
+    const matchesDate = !dateFilter || fecha === dateFilter;
     
     return matchesSearch && matchesStatus && matchesDate;
   });

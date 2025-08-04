@@ -5,9 +5,14 @@ const initializeFromStorage = () => {
   const token = localStorage.getItem('token');
   const user = localStorage.getItem('user');
   
+  console.log('🔧 Inicializando AuthStore desde localStorage...');
+  console.log('🔑 Token encontrado:', !!token);
+  console.log('👤 Usuario encontrado:', !!user);
+  
   if (token && user) {
     try {
       const userData = JSON.parse(user);
+      console.log('✅ AuthStore inicializado con usuario:', userData.nombre || userData.user?.nombre);
       return {
         token,
         user: userData,
@@ -16,12 +21,13 @@ const initializeFromStorage = () => {
         isInitialized: true,
       };
     } catch (error) {
-      console.error('Error al parsear usuario desde localStorage:', error);
+      console.error('❌ Error al parsear usuario desde localStorage:', error);
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     }
   }
   
+  console.log('⚠️ AuthStore inicializado sin autenticación');
   return {
     user: null,
     token: null,
@@ -82,15 +88,15 @@ export const useAuthStore = create((set, get) => ({
   // Verificar si el usuario tiene un rol específico
   hasRole: (roleId) => {
     const { user } = get();
-    const userRoleId = user?.user?.rol_id || user?.rol_id;
-    return userRoleId === roleId;
+    const userData = user?.user || user;
+    return userData?.rol_id === roleId;
   },
 
   // Verificar si el usuario tiene uno de múltiples roles
   hasAnyRole: (roleIds) => {
     const { user } = get();
-    const userRoleId = user?.user?.rol_id || user?.rol_id;
-    return roleIds.includes(userRoleId);
+    const userData = user?.user || user;
+    return roleIds.includes(userData?.rol_id);
   },
 
   // Actualizar datos del usuario (para cuando se completa el perfil)
@@ -107,10 +113,20 @@ export const useAuthStore = create((set, get) => ({
     const { user } = get();
     if (!user) return false;
 
+    // Determinar la estructura correcta del usuario
+    const userData = user?.user || user;
+    const roleData = user?.user ? user.user : user;
+
     // Verificar según el rol
-    switch (user.rol_id) {
+    switch (userData?.rol_id) {
       case 4: // Paciente
-        const paciente = user.user?.paciente;
+        const paciente = roleData?.paciente;
+        // Temporalmente, si no hay registro de paciente, considerarlo como completo
+        // hasta que el backend cree automáticamente el registro
+        if (!paciente) {
+          console.log('⚠️ Paciente sin registro específico - considerando perfil completo temporalmente');
+          return true;
+        }
         return !!(
           paciente?.contacto_emergencia_nombre &&
           paciente?.contacto_emergencia_telefono &&
@@ -118,7 +134,7 @@ export const useAuthStore = create((set, get) => ({
         );
       
       case 2: // Terapeuta
-        const terapeuta = user.user?.terapeuta;
+        const terapeuta = roleData?.terapeuta;
         return !!(
           terapeuta?.cedula_profesional &&
           terapeuta?.especialidad_principal &&
@@ -139,17 +155,21 @@ export const useAuthStore = create((set, get) => ({
   // Obtener datos específicos del rol
   getRoleSpecificData: () => {
     const { user } = get();
-    if (!user?.user) return null;
+    if (!user) return null;
 
-    switch (user.rol_id) {
+    // Determinar la estructura correcta del usuario
+    const userData = user.user || user;
+    const roleData = user.user ? user.user : user;
+
+    switch (userData.rol_id) {
       case 4: // Paciente
-        return user.user.paciente;
+        return roleData.paciente;
       case 2: // Terapeuta
-        return user.user.terapeuta;
+        return roleData.terapeuta;
       case 3: // Recepcionista
-        return user.user.recepcionista;
+        return roleData.recepcionista;
       case 1: // Administrador
-        return user.user.administrador;
+        return roleData.administrador;
       default:
         return null;
     }

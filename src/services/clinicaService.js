@@ -123,4 +123,28 @@ export const clinicaService = {
   }
 };
 
+// Exportaciones individuales para compatibilidad
+export const getClinicas = async () => {
+  const result = await clinicaService.getAll();
+  return result.success ? result.data : [];
+};
+
+export const createClinica = async (data) => {
+  const result = await clinicaService.create(data);
+  if (!result.success) throw new Error(result.error);
+  return result.data;
+};
+
+export const updateClinica = async (id, data) => {
+  const result = await clinicaService.update(id, data);
+  if (!result.success) throw new Error(result.error);
+  return result.data;
+};
+
+export const deleteClinica = async (id) => {
+  const result = await clinicaService.delete(id);
+  if (!result.success) throw new Error(result.error);
+  return result.message;
+};
+
 export default clinicaService;
