@@ -3,9 +3,10 @@ import api from '../services/api';
 // Iniciar sesión y obtener token
 export async function loginUser(correoElectronico, contraseña) {
   try {
+    console.log('🔐 Intentando login con:', { correo_electronico: correoElectronico });
     const response = await api.post('/login', {
       correo_electronico: correoElectronico,
-      password: contraseña,
+      contraseña: contraseña,
     });
 
     const { usuario, token } = response.data;
@@ -21,9 +22,16 @@ export async function loginUser(correoElectronico, contraseña) {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(completeUserData));
 
+    console.log('✅ Login exitoso:', { usuario: completeUserData.user?.nombre, token: token.substring(0, 20) + '...' });
     return { usuario: completeUserData, token };
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Error al iniciar sesión');
+    console.error('❌ Error en login:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message
+    });
+    throw new Error(error.response?.data?.message || error.response?.data?.error || 'Error al iniciar sesión');
   }
 }
 
