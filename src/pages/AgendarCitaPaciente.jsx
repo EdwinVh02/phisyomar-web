@@ -269,7 +269,15 @@ export default function AgendarCitaPaciente() {
                 {form.fecha_hora && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <p className="text-blue-800 font-medium">
-                      <strong>Fecha y hora seleccionada:</strong> {new Date(form.fecha_hora).toLocaleString('es-ES')}
+                      <strong>Fecha y hora seleccionada:</strong> {new Date(form.fecha_hora).toLocaleString('es-ES', {
+                        timeZone: 'America/Mexico_City',
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </p>
                   </div>
                 )}

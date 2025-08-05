@@ -3,6 +3,7 @@ import { ChevronDown, ArrowRight, Star, Play, Menu, X, Heart, Phone, Calendar, C
 import { Link } from "react-router-dom";
 import { getTerapeutasPublico } from '../services/terapeutaService';
 import { getEspecialidades } from '../services/especialidadService';
+import { getPaquetesPublico, getTarifasPublico } from '../services/paqueteService';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -11,6 +12,8 @@ export default function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
   const [terapeutas, setTerapeutas] = useState([]);
   const [especialidades, setEspecialidades] = useState([]);
+  const [paquetes, setPaquetes] = useState([]);
+  const [tarifas, setTarifas] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,13 +26,17 @@ export default function LandingPage() {
     const fetchPublicData = async () => {
       try {
         setLoading(true);
-        const [terapeutasData, especialidadesData] = await Promise.all([
+        const [terapeutasData, especialidadesData, paquetesData, tarifasData] = await Promise.all([
           getTerapeutasPublico().catch(() => ({ data: [] })),
-          getEspecialidades().catch(() => ({ data: [] }))
+          getEspecialidades().catch(() => ({ data: [] })),
+          getPaquetesPublico().catch(() => []),
+          getTarifasPublico().catch(() => [])
         ]);
         
         setTerapeutas(terapeutasData.data || terapeutasData || []);
         setEspecialidades(especialidadesData.data || especialidadesData || []);
+        setPaquetes(paquetesData || []);
+        setTarifas(tarifasData || []);
       } catch (error) {
         console.error('Error loading public data:', error);
       } finally {
@@ -85,55 +92,39 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden relative">
-      {/* Modern animated background */}
+    <div className="min-h-screen bg-white text-gray-900 overflow-hidden relative">
+      {/* Clean geometric background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-40 -left-32 w-80 h-80 bg-blue-300/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-40 right-20 w-60 h-60 bg-white/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
-        
-        {/* Floating particles */}
-        {[...Array(30)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute bg-white/5 rounded-full animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 6 + 3}px`,
-              height: `${Math.random() * 6 + 3}px`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${Math.random() * 10 + 10}s`
-            }}
-          />
-        ))}
+        <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-100/50 rounded-full blur-3xl"></div>
+        <div className="absolute top-40 -left-32 w-80 h-80 bg-blue-50/80 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-40 right-20 w-60 h-60 bg-blue-200/30 rounded-full blur-3xl"></div>
       </div>
       
-      {/* Mesh gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-blue-300/10 pointer-events-none z-0"></div>
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-white to-blue-50/30 pointer-events-none z-0"></div>
 
       {/* Navigation */}
       <Navbar />
 
       {/* Hero Section */}
-      <section id="inicio" className="relative z-10 px-6 py-32 text-center">
+      <section id="inicio" className="relative z-10 px-6 py-32 text-center bg-gradient-to-b from-blue-600 to-blue-700 text-white">
         <div className="max-w-6xl mx-auto">
           <div 
             className="transform transition-all duration-1000 ease-out"
             style={{ transform: `translateY(${scrollY * 0.05}px)` }}
           >
             {/* Hero Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white text-sm font-medium mb-8 animate-fade-in">
-              <Heart className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white text-sm font-medium mb-8 animate-fade-in">
+              <Heart className="w-4 h-4 text-blue-200" />
               Tu salud y bienestar son nuestra prioridad
             </div>
             
-            <h1 className="text-6xl md:text-8xl font-black mb-8 leading-tight">
-              <span className="text-white animate-gradient-x">
+            <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
+              <span className="text-white">
                 Recupera tu
               </span>
               <br />
-              <span className="bg-gradient-to-r from-blue-200 via-white to-blue-200 bg-clip-text text-transparent animate-gradient-x" style={{animationDelay: '0.5s'}}>
+              <span className="text-blue-200">
                 bienestar
               </span>
             </h1>
@@ -141,38 +132,37 @@ export default function LandingPage() {
             <p className="text-xl md:text-2xl mb-12 text-blue-100 max-w-4xl mx-auto leading-relaxed">
               En <span className="text-white font-semibold">Clínica PhysioMar</span> te ayudamos a recuperar tu movilidad y calidad de vida. 
               <br className="hidden md:block" />
-              Tratamientos personalizados con tecnología de vanguardia. <span className="hidden md:inline text-blue-200">Tu recuperación es nuestra misión.</span>
+              Tratamientos personalizados con la mejor atención profesional.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-              <Link to="/registrar" className="group relative bg-white text-blue-700 px-10 py-4 rounded-full text-lg font-bold hover:bg-blue-50 transition-all duration-500 transform hover:scale-105 shadow-2xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-50/0 via-blue-100/50 to-blue-50/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                <span className="relative z-10">Agendar Cita</span>
-                <Calendar className="relative z-10 inline ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              <Link to="/registrar" className="bg-white text-blue-700 px-10 py-4 rounded-lg text-lg font-bold hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                <Calendar className="inline mr-2 w-5 h-5" />
+                Agendar Cita
               </Link>
-              <a href="#servicios" className="group flex items-center px-10 py-4 border-2 border-white/30 rounded-full text-lg font-semibold text-white hover:border-white hover:bg-white/10 transition-all duration-300 backdrop-blur-sm">
-                <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                Nuestros Servicios
+              <a href="#precios" className="flex items-center px-10 py-4 border-2 border-white/50 rounded-lg text-lg font-semibold text-white hover:border-white hover:bg-white/10 transition-all duration-300">
+                <Shield className="w-5 h-5 mr-2" />
+                Ver Precios
               </a>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              <div className="group text-center p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-105">
-                <div className="text-4xl font-black text-white mb-3">
-                  {loading ? '...' : `${terapeutas.length}+`}
+              <div className="text-center p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <div className="text-4xl font-bold text-white mb-3">
+                  {loading ? '...' : `${terapeutas.length > 0 ? terapeutas.length : '5'}+`}
                 </div>
-                <div className="text-blue-200 font-medium">Fisioterapeutas Especialistas</div>
+                <div className="text-blue-100 font-medium">Fisioterapeutas Especialistas</div>
               </div>
-              <div className="group text-center p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-105">
-                <div className="text-4xl font-black text-white mb-3">
-                  {loading ? '...' : `${especialidades.length}+`}
+              <div className="text-center p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <div className="text-4xl font-bold text-white mb-3">
+                  {loading ? '...' : `${especialidades.length > 0 ? especialidades.length : '8'}+`}
                 </div>
-                <div className="text-blue-200 font-medium">Tratamientos Especializados</div>
+                <div className="text-blue-100 font-medium">Tratamientos Especializados</div>
               </div>
-              <div className="group text-center p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-105">
-                <div className="text-4xl font-black text-white mb-3">95%</div>
-                <div className="text-blue-200 font-medium">Pacientes Satisfechos</div>
+              <div className="text-center p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <div className="text-4xl font-bold text-white mb-3">95%</div>
+                <div className="text-blue-100 font-medium">Pacientes Satisfechos</div>
               </div>
             </div>
           </div>
@@ -186,10 +176,10 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="servicios" className="relative z-10 px-6 py-32 bg-gradient-to-br from-white/95 to-blue-50/95 backdrop-blur-sm text-gray-800">
+      <section id="servicios" className="relative z-10 px-6 py-24 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-black mb-6 text-gray-800">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
               ¿Por qué elegir 
               <span className="text-blue-600">PhysioMar</span>?
             </h2>
@@ -202,24 +192,21 @@ export default function LandingPage() {
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className="group relative p-8 bg-gradient-to-br from-white/10 to-white/5 rounded-3xl border border-white/20 hover:border-blue-400/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 text-center backdrop-blur-sm overflow-hidden"
+                className="group p-8 bg-blue-50 rounded-2xl border border-blue-100 hover:border-blue-300 hover:bg-blue-100 transition-all duration-300 text-center"
               >
-                {/* Animated background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
                 {/* Icon */}
-                <div className="relative z-10 text-blue-400 mb-6 group-hover:text-cyan-300 group-hover:scale-110 transition-all duration-500 mx-auto">
-                  <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl border border-blue-400/30 group-hover:border-cyan-400/50 transition-all duration-500">
+                <div className="text-blue-600 mb-6 mx-auto">
+                  <div className="p-4 bg-blue-100 group-hover:bg-blue-200 rounded-xl transition-all duration-300">
                     {feature.icon}
                   </div>
                 </div>
                 
                 {/* Content */}
-                <div className="relative z-10">
-                  <h3 className="text-xl font-bold mb-4 text-white group-hover:text-blue-200 transition-colors duration-300">
+                <div>
+                  <h3 className="text-xl font-bold mb-4 text-gray-900">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-300 text-sm leading-relaxed group-hover:text-gray-200 transition-colors duration-300">
+                  <p className="text-gray-600 text-sm leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
@@ -229,15 +216,135 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Precios y Paquetes Section */}
+      {!loading && (paquetes.length > 0 || tarifas.length > 0) && (
+        <section id="precios" className="relative z-10 px-6 py-24 bg-blue-50">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+                Precios y <span className="text-blue-600">Paquetes</span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Ofrecemos precios transparentes y paquetes diseñados para cada tipo de tratamiento y presupuesto
+              </p>
+            </div>
+            
+            {/* Tarifas Individuales */}
+            {tarifas.length > 0 && (
+              <div className="mb-16">
+                <h3 className="text-2xl font-bold text-center mb-8 text-gray-900">Consultas Individuales</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {tarifas.slice(0, 4).map((tarifa, index) => (
+                    <div 
+                      key={tarifa.id}
+                      className="bg-white rounded-xl p-6 border border-blue-200 hover:border-blue-400 transition-all duration-300 hover:shadow-lg"
+                    >
+                      <div className="text-center">
+                        <h4 className="text-lg font-bold text-gray-900 mb-2">{tarifa.titulo}</h4>
+                        <div className="text-3xl font-bold text-blue-600 mb-4">
+                          ${parseFloat(tarifa.precio).toLocaleString('es-MX')}
+                        </div>
+                        <div className="text-sm text-gray-500 mb-4 capitalize">
+                          Tarifa {tarifa.tipo.toLowerCase()}
+                        </div>
+                        {tarifa.condiciones && (
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {tarifa.condiciones}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Paquetes de Tratamiento */}
+            {paquetes.length > 0 && (
+              <div>
+                <h3 className="text-2xl font-bold text-center mb-8 text-gray-900">Paquetes de Tratamiento</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {paquetes.slice(0, 6).map((paquete, index) => (
+                    <div 
+                      key={paquete.id}
+                      className="bg-white rounded-2xl p-8 border border-blue-200 hover:border-blue-400 transition-all duration-300 hover:shadow-xl relative overflow-hidden"
+                    >
+                      {/* Popular badge for middle-priced packages */}
+                      {index === 1 && (
+                        <div className="absolute top-0 right-0 bg-blue-600 text-white px-4 py-1 text-sm font-medium rounded-bl-lg">
+                          Popular
+                        </div>
+                      )}
+                      
+                      <div className="text-center">
+                        <h4 className="text-xl font-bold text-gray-900 mb-3">{paquete.nombre}</h4>
+                        
+                        <div className="mb-6">
+                          <div className="text-4xl font-bold text-blue-600 mb-2">
+                            ${parseFloat(paquete.precio).toLocaleString('es-MX')}
+                          </div>
+                          <div className="text-gray-500">
+                            {paquete.numero_sesiones} sesiones
+                          </div>
+                          <div className="text-sm text-green-600 font-medium">
+                            ${(parseFloat(paquete.precio) / paquete.numero_sesiones).toFixed(2)} por sesión
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-3 mb-6">
+                          <div className="flex items-center text-gray-600">
+                            <CheckCircle className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                            <span className="text-sm">{paquete.tipo_terapia}</span>
+                          </div>
+                          {paquete.especifico_enfermedad && (
+                            <div className="flex items-start text-gray-600">
+                              <Heart className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0 mt-0.5" />
+                              <span className="text-sm">{paquete.especifico_enfermedad}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center text-gray-600">
+                            <Clock className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                            <span className="text-sm">Horarios flexibles</span>
+                          </div>
+                        </div>
+                        
+                        <Link 
+                          to="/registrar" 
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 inline-block text-center"
+                        >
+                          Seleccionar Paquete
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {paquetes.length > 6 && (
+                  <div className="text-center mt-12">
+                    <Link 
+                      to="/registrar" 
+                      className="inline-flex items-center px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 font-semibold"
+                    >
+                      Ver todos los paquetes
+                      <ArrowRight className="ml-2 w-5 h-5" />
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Especialidades Section */}
       {!loading && especialidades.length > 0 && (
-        <section className="relative z-10 px-6 py-32">
+        <section className="relative z-10 px-6 py-24 bg-white">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20">
-              <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Tratamientos <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Especializados</span>
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+                Tratamientos <span className="text-blue-600">Especializados</span>
               </h2>
-              <p className="text-xl text-gray-400 mb-16 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-600 mb-16 max-w-3xl mx-auto">
                 Ofrecemos una amplia gama de tratamientos de fisioterapia adaptados a tus necesidades específicas
               </p>
             </div>
@@ -246,22 +353,18 @@ export default function LandingPage() {
               {especialidades.slice(0, 6).map((especialidad, index) => (
                 <div 
                   key={especialidad.id}
-                  className="group relative p-8 bg-gradient-to-br from-white/10 to-white/5 rounded-3xl border border-white/20 hover:border-blue-400/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 backdrop-blur-sm overflow-hidden"
-                  style={{animationDelay: `${index * 0.1}s`}}
+                  className="group p-8 bg-blue-50 rounded-2xl border border-blue-100 hover:border-blue-300 hover:bg-blue-100 transition-all duration-300"
                 >
-                  {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  
-                  <div className="relative z-10 flex items-start gap-4 mb-6">
-                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-blue-400/30">
-                      <Award className="w-7 h-7 text-blue-400 group-hover:text-cyan-300 transition-colors duration-300" />
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className="flex-shrink-0 w-14 h-14 bg-blue-100 group-hover:bg-blue-200 rounded-xl flex items-center justify-center transition-all duration-300">
+                      <Award className="w-7 h-7 text-blue-600" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-200 transition-colors duration-300">
+                      <h3 className="text-xl font-bold text-gray-900 mb-3">
                         {especialidad.nombre}
                       </h3>
                       {especialidad.descripcion && (
-                        <p className="text-gray-300 text-sm leading-relaxed group-hover:text-gray-200 transition-colors duration-300">
+                        <p className="text-gray-600 text-sm leading-relaxed">
                           {especialidad.descripcion}
                         </p>
                       )}
@@ -276,13 +379,13 @@ export default function LandingPage() {
 
       {/* Terapeutas Section */}
       {!loading && terapeutas.length > 0 && (
-        <section className="relative z-10 px-6 py-32 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm">
+        <section className="relative z-10 px-6 py-24 bg-blue-50">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20">
-              <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Nuestros <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Fisioterapeutas</span>
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+                Nuestros <span className="text-blue-600">Fisioterapeutas</span>
               </h2>
-              <p className="text-xl text-gray-400 mb-16 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-600 mb-16 max-w-3xl mx-auto">
                 Profesionales altamente capacitados y comprometidos con tu recuperación y bienestar
               </p>
             </div>
@@ -291,66 +394,53 @@ export default function LandingPage() {
               {terapeutas.slice(0, 6).map((terapeuta, index) => (
                 <div 
                   key={terapeuta.id}
-                  className="group relative bg-gradient-to-br from-white/10 to-white/5 rounded-3xl border border-white/20 hover:border-blue-400/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 backdrop-blur-sm overflow-hidden"
-                  style={{animationDelay: `${index * 0.1}s`}}
+                  className="bg-white rounded-2xl border border-blue-200 hover:border-blue-400 transition-all duration-300 hover:shadow-lg overflow-hidden"
                 >
-                  {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  
-                  <div className="relative z-10 p-8">
+                  <div className="p-8">
                     <div className="flex items-start gap-4 mb-6">
-                      <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                        {terapeuta.nombre?.charAt(0)}{terapeuta.apellido?.charAt(0)}
+                      <div className="flex-shrink-0 w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                        {terapeuta.usuario?.nombre?.charAt(0)}{terapeuta.usuario?.apellido_paterno?.charAt(0)}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-200 transition-colors duration-300">
-                          {terapeuta.nombre} {terapeuta.apellido}
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                          {terapeuta.usuario?.nombre} {terapeuta.usuario?.apellido_paterno}
                         </h3>
-                        <p className="text-gray-400 text-sm font-medium">Especialista en Fisioterapia</p>
+                        <p className="text-gray-600 text-sm font-medium">Especialista en Fisioterapia</p>
                       </div>
                     </div>
                     
                     <div className="space-y-3 mb-6">
-                      {terapeuta.experiencia_anos && (
-                        <div className="flex items-center text-gray-300">
-                          <div className="w-5 h-5 bg-blue-500/20 rounded-lg flex items-center justify-center mr-3">
-                            <Clock className="w-3 h-3 text-blue-400" />
+                      {terapeuta.numero_cedula && (
+                        <div className="flex items-center text-gray-600">
+                          <div className="w-5 h-5 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                            <Shield className="w-3 h-3 text-blue-600" />
                           </div>
-                          <span className="text-sm">{terapeuta.experiencia_anos} años de experiencia</span>
+                          <span className="text-sm">Cédula: {terapeuta.numero_cedula}</span>
                         </div>
                       )}
                       
-                      {terapeuta.telefono && (
-                        <div className="flex items-center text-gray-300">
-                          <div className="w-5 h-5 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
-                            <MapPin className="w-3 h-3 text-green-400" />
+                      {terapeuta.telefono_consultorio && (
+                        <div className="flex items-center text-gray-600">
+                          <div className="w-5 h-5 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                            <Phone className="w-3 h-3 text-green-600" />
                           </div>
-                          <span className="text-sm">Tel: {terapeuta.telefono}</span>
+                          <span className="text-sm">Tel: {terapeuta.telefono_consultorio}</span>
                         </div>
                       )}
-                    </div>
-                    
-                    {terapeuta.especialidades && terapeuta.especialidades.length > 0 && (
-                      <div className="mb-6">
-                        <p className="text-xs text-gray-400 mb-3 font-medium">Especialidades:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {terapeuta.especialidades.slice(0, 3).map((esp, espIndex) => (
-                            <span 
-                              key={espIndex}
-                              className="px-3 py-1 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 text-xs rounded-full border border-blue-400/30 font-medium"
-                            >
-                              {esp.nombre}
-                            </span>
-                          ))}
+                      
+                      <div className="flex items-center text-gray-600">
+                        <div className="w-5 h-5 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                          <Activity className="w-3 h-3 text-blue-600" />
                         </div>
+                        <span className="text-sm">Fisioterapia Especializada</span>
                       </div>
-                    )}
+                    </div>
                   </div>
                   
-                  <div className="relative z-10 p-6 border-t border-white/10 bg-gradient-to-r from-white/5 to-white/10">
+                  <div className="p-6 border-t border-blue-100 bg-blue-50">
                     <Link 
                       to="/registrar" 
-                      className="flex items-center justify-center w-full text-center bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 text-sm font-semibold shadow-lg transform hover:scale-105"
+                      className="flex items-center justify-center w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-all duration-300 text-sm font-semibold"
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Agendar Cita
@@ -389,13 +479,13 @@ export default function LandingPage() {
       )}
 
       {/* Testimonials Section */}
-      <section id="testimonios" className="relative z-10 px-6 py-32">
+      {/* <section id="testimonios" className="relative z-10 px-6 py-24 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-              Historias de <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">recuperación</span>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+              Historias de <span className="text-blue-600">recuperación</span>
             </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Conoce las experiencias de nuestros pacientes y cómo hemos transformado sus vidas a través de la fisioterapia
             </p>
           </div>
@@ -404,49 +494,45 @@ export default function LandingPage() {
             {testimonials.map((testimonial, index) => (
               <div 
                 key={index}
-                className="group relative p-8 bg-gradient-to-br from-white/10 to-white/5 rounded-3xl border border-white/20 hover:border-blue-400/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 backdrop-blur-sm overflow-hidden"
-                style={{animationDelay: `${index * 0.2}s`}}
+                className="p-8 bg-blue-50 rounded-2xl border border-blue-100 hover:border-blue-300 hover:bg-blue-100 transition-all duration-300"
               >
-                {/* Animated background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
-                <div className="relative z-10">
+                <div>
                   {/* Stars */}
-                  <div className="flex mb-6 justify-center">
+                  {/* <div className="flex mb-6 justify-center">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current drop-shadow-sm" />
+                      <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
                     ))}
-                  </div>
+                  </div> */}
                   
                   {/* Quote */}
-                  <div className="relative mb-8">
-                    <div className="text-6xl text-blue-400/20 font-serif absolute -top-4 -left-2">“</div>
-                    <p className="text-gray-300 text-lg leading-relaxed italic relative z-10 group-hover:text-white transition-colors duration-300">
+                  {/* <div className="relative mb-8">
+                    <div className="text-6xl text-blue-200/50 font-serif absolute -top-4 -left-2">"</div>
+                    <p className="text-gray-700 text-lg leading-relaxed italic relative z-10">
                       {testimonial.content}
                     </p>
-                    <div className="text-6xl text-blue-400/20 font-serif absolute -bottom-6 -right-2">”</div>
+                    <div className="text-6xl text-blue-200/50 font-serif absolute -bottom-6 -right-2">"</div>
                   </div>
                   
                   {/* Author */}
-                  <div className="pt-6 border-t border-white/10">
-                    <div className="font-bold text-white text-lg mb-1 group-hover:text-blue-200 transition-colors duration-300">{testimonial.name}</div>
-                    <div className="text-gray-400 text-sm font-medium">{testimonial.role}</div>
+                  {/* <div className="pt-6 border-t border-blue-200">
+                    <div className="font-bold text-gray-900 text-lg mb-1">{testimonial.name}</div>
+                    <div className="text-gray-600 text-sm font-medium">{testimonial.role}</div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              </div> */}
+            {/* ))} */}
+          {/* </div> */}
+        {/* </div> */} */}
+      {/* </section> */} */}
 
       {/* CTA Section */}
-      <section className="relative z-10 px-6 py-32 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm" id="contacto">
+      <section className="relative z-10 px-6 py-24 bg-gradient-to-r from-blue-600 to-blue-700 text-white" id="contacto">
         <div className="max-w-5xl mx-auto text-center">
           <div className="mb-12">
-            <h2 className="text-5xl md:text-6xl font-black mb-8 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-              Inicia tu <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">recuperación</span> hoy
+            <h2 className="text-4xl md:text-5xl font-bold mb-8">
+              Inicia tu <span className="text-blue-200">recuperación</span> hoy
             </h2>
-            <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-blue-100 mb-12 max-w-3xl mx-auto leading-relaxed">
               No dejes que el dolor limite tu vida. Agenda tu cita y comienza tu camino hacia una mejor calidad de vida con nuestros especialistas.
             </p>
           </div>
@@ -454,15 +540,14 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Link 
               to="/registrar" 
-              className="group relative bg-gradient-to-r from-blue-500 to-cyan-500 px-12 py-5 rounded-full text-xl font-bold text-white hover:from-blue-600 hover:to-cyan-600 transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-blue-500/25 overflow-hidden"
+              className="bg-white text-blue-700 px-12 py-4 rounded-lg text-xl font-bold hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-              <Calendar className="relative z-10 inline mr-2 w-6 h-6" />
-              <span className="relative z-10">Agendar Cita</span>
+              <Calendar className="inline mr-2 w-6 h-6" />
+              Agendar Cita
             </Link>
             <a 
               href="tel:+52-555-123-4567" 
-              className="flex items-center px-12 py-5 border-2 border-gray-400/30 rounded-full text-xl font-semibold text-gray-300 hover:border-blue-400/50 hover:text-white hover:bg-blue-500/10 transition-all duration-300 backdrop-blur-sm"
+              className="flex items-center px-12 py-4 border-2 border-white/50 rounded-lg text-xl font-semibold hover:border-white hover:bg-white/10 transition-all duration-300"
             >
               <Phone className="w-6 h-6 mr-2" />
               Llamar Ahora
@@ -472,20 +557,20 @@ export default function LandingPage() {
           {/* Additional features highlight */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-400 mb-2">✓</div>
-              <div className="text-gray-300 text-sm">Primera consulta</div>
+              <div className="text-2xl font-bold text-blue-200 mb-2">✓</div>
+              <div className="text-blue-100 text-sm">Primera consulta</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-400 mb-2">✓</div>
-              <div className="text-gray-300 text-sm">Horarios flexibles</div>
+              <div className="text-2xl font-bold text-green-300 mb-2">✓</div>
+              <div className="text-blue-100 text-sm">Horarios flexibles</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-400 mb-2">✓</div>
-              <div className="text-gray-300 text-sm">Planes de pago</div>
+              <div className="text-2xl font-bold text-purple-300 mb-2">✓</div>
+              <div className="text-blue-100 text-sm">Planes de pago</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-cyan-400 mb-2">✓</div>
-              <div className="text-gray-300 text-sm">Seguimiento integral</div>
+              <div className="text-2xl font-bold text-cyan-300 mb-2">✓</div>
+              <div className="text-blue-100 text-sm">Seguimiento integral</div>
             </div>
           </div>
         </div>

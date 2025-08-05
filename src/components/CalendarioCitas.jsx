@@ -20,11 +20,13 @@ export default function CalendarioCitas({
     if (value) {
       const date = new Date(value);
       if (!isNaN(date.getTime())) {
-        const fechaStr = date.toISOString().split('T')[0];
+        // Create local date to avoid timezone issues
+        const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+        const fechaStr = localDate.toISOString().split('T')[0];
         const horaStr = date.toTimeString().slice(0, 5);
         setFechaSeleccionada(fechaStr);
         setHoraSeleccionada(horaStr);
-        setFechaActual(date);
+        setFechaActual(new Date(fechaStr + 'T00:00:00'));
       }
     }
   }, [value]);
@@ -161,7 +163,7 @@ export default function CalendarioCitas({
     return (
       <div className="mt-6 p-4 bg-gray-50 rounded-lg">
         <h4 className="text-lg font-semibold text-gray-800 mb-4">
-          Selecciona una hora para el {new Date(fechaSeleccionada).toLocaleDateString('es-ES', {
+          Selecciona una hora para el {new Date(fechaSeleccionada + 'T00:00:00').toLocaleDateString('es-ES', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
