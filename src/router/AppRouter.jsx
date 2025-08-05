@@ -41,6 +41,9 @@ const HistorialMedico = lazy(() => import("../pages/HistorialMedico"));
 const PagosFacturacion = lazy(() => import("../pages/PagosFacturacion"));
 const EncuestasSatisfaccion = lazy(() => import("../pages/EncuestasSatisfaccion"));
 const AyudaSoporte = lazy(() => import("../pages/AyudaSoporte"));
+const MyProfile = lazy(() => import("../pages/MyProfile"));
+const TerapeutaProfile = lazy(() => import("../pages/TerapeutaProfile"));
+const RecepcionistaCitas = lazy(() => import("../pages/RecepcionistaCitas"));
 
 export default function AppRoutes() {
   return (
@@ -64,6 +67,28 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <ProfileCompletion />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Rutas de perfil (protegidas) */}
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <ProfileChecker>
+                <MyProfile />
+              </ProfileChecker>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/terapeuta/:id/profile" 
+          element={
+            <ProtectedRoute>
+              <ProfileChecker>
+                <TerapeutaProfile />
+              </ProfileChecker>
             </ProtectedRoute>
           } 
         />
@@ -93,6 +118,7 @@ export default function AppRoutes() {
           <Route path="database" element={<DatabasePage />} />
           <Route path="configuracion" element={<ConfiguracionPage />} />
           <Route path="roles" element={<RoleManagementPage />} />
+          <Route path="profile" element={<MyProfile />} />
         </Route>
 
         {/* Rutas protegidas para TERAPEUTA */}
@@ -111,6 +137,7 @@ export default function AppRoutes() {
           <Route path="estadisticas" element={<TerapeutaHomePage />} />
           <Route path="detalle-paciente/:id" element={<TerapeutaHomePage />} />
           <Route path="citas" element={<TerapeutaCitas />} />
+          <Route path="profile" element={<MyProfile />} />
         </Route>
 
         {/* Rutas protegidas para RECEPCIONISTA */}
@@ -126,7 +153,8 @@ export default function AppRoutes() {
         >
           <Route index element={<RecepcionistaHomePage />} />
           <Route path="pacientes" element={<PacientesPage />} />
-          <Route path="citas" element={<CitasPage />} />
+          <Route path="citas" element={<RecepcionistaCitas />} />
+          <Route path="profile" element={<MyProfile />} />
         </Route>
 
         {/* Rutas protegidas para PACIENTE */}

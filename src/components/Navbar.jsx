@@ -28,9 +28,10 @@ const Navbar = React.memo(function Navbar() {
     if (hasRole(1)) { // Administrador
       return [
         { title: "Dashboard", icon: Home, path: basePath },
+        { title: "Mi Perfil", icon: User, path: `${basePath}/profile` },
         { title: "Usuarios", icon: Users, path: `${basePath}/usuarios` },
         { title: "Terapeutas", icon: UserCheck, path: `${basePath}/terapeutas` },
-        { title: "Pacientes", icon: User, path: `${basePath}/pacientes` },
+        { title: "Pacientes", icon: Users, path: `${basePath}/pacientes` },
         { title: "Citas", icon: Calendar, path: `${basePath}/citas` },
         { title: "Estadísticas", icon: BarChart3, path: `${basePath}/estadisticas` },
         { title: "Configuración", icon: Settings, path: `${basePath}/configuracion` }
@@ -38,6 +39,7 @@ const Navbar = React.memo(function Navbar() {
     } else if (hasRole(2)) { // Terapeuta
       return [
         { title: "Dashboard", icon: Home, path: basePath },
+        { title: "Mi Perfil", icon: User, path: `${basePath}/profile` },
         { title: "Mis Pacientes", icon: Users, path: `${basePath}/pacientes` },
         { title: "Mis Citas", icon: Calendar, path: `${basePath}/citas` },
         { title: "Estadísticas", icon: FileText, path: `${basePath}/estadisticas` }
@@ -45,7 +47,8 @@ const Navbar = React.memo(function Navbar() {
     } else if (hasRole(3)) { // Recepcionista
       return [
         { title: "Dashboard", icon: Home, path: basePath },
-        { title: "Pacientes", icon: User, path: `${basePath}/pacientes` },
+        { title: "Mi Perfil", icon: User, path: `${basePath}/profile` },
+        { title: "Pacientes", icon: Users, path: `${basePath}/pacientes` },
         { title: "Citas", icon: Calendar, path: `${basePath}/citas` }
       ];
     } else if (hasRole(4)) { // Paciente

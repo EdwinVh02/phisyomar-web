@@ -1,30 +1,56 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Users, Clock, UserPlus } from 'lucide-react';
-import { getCitas, getPacientes } from '../services';
+import { getPacientes } from '../services';
+import useAuth from '../hooks/useAuth';
+import api from '../services/api';
 
 export default function RecepcionistaHomePage() {
+  const { isAuthenticated } = useAuth();
   const [citas, setCitas] = useState([]);
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    cargarDatos();
-  }, []);
+    if (isAuthenticated) {
+      cargarDatos();
+    }
+  }, [isAuthenticated]);
 
   const cargarDatos = async () => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
     try {
-      const [citasData, pacientesData] = await Promise.all([
-        getCitas(),
+      const [citasResponse, pacientesData] = await Promise.all([
+        api.get('/recepcionista/citas'),
         getPacientes()
       ]);
-      setCitas(citasData || []);
-      setPacientes(pacientesData || []);
+      
+      // Handle citas response
+      const citasData = citasResponse.data?.data || citasResponse.data || [];
+      setCitas(Array.isArray(citasData) ? citasData : []);
+      setPacientes(Array.isArray(pacientesData) ? pacientesData : []);
     } catch (error) {
       console.error('Error al cargar datos:', error);
+      setCitas([]);
+      setPacientes([]);
     } finally {
       setLoading(false);
     }
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-lg text-gray-600">Necesitas iniciar sesión</p>
+          <a href="/login" className="text-blue-600 hover:underline">Ir a Login</a>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -34,13 +60,13 @@ export default function RecepcionistaHomePage() {
     );
   }
 
-  const citasHoy = citas.filter(cita => {
-    const fechaCita = new Date(cita.fecha);
+  const citasHoy = (Array.isArray(citas) ? citas : []).filter(cita => {
+    const fechaCita = new Date(cita.fecha_hora || cita.fecha);
     const hoy = new Date();
     return fechaCita.toDateString() === hoy.toDateString();
   });
 
-  const citasPendientes = citas.filter(cita => cita.estado === 'programada');
+  const citasPendientes = (Array.isArray(citas) ? citas : []).filter(cita => cita.estado === 'agendada' || cita.estado === 'programada');
 
   return (
     <div className="p-6">
@@ -119,13 +145,16 @@ export default function RecepcionistaHomePage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-blue-600">{cita.hora}</p>
+                    <p className="text-sm font-medium text-blue-600">
+                      {cita.hora || new Date(cita.fecha_hora).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}
+                    </p>
                     <span className={`text-xs px-2 py-1 rounded ${
-                      cita.estado === 'programada' ? 'bg-green-100 text-green-800' :
-                      cita.estado === 'completada' ? 'bg-blue-100 text-blue-800' :
+                      cita.estado === 'agendada' || cita.estado === 'programada' ? 'bg-green-100 text-green-800' :
+                      cita.estado === 'atendida' || cita.estado === 'completada' ? 'bg-blue-100 text-blue-800' :
+                      cita.estado === 'cancelada' ? 'bg-red-100 text-red-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
-                      {cita.estado || 'Programada'}
+                      {cita.estado || 'Agendada'}
                     </span>
                   </div>
                 </div>
@@ -137,7 +166,7 @@ export default function RecepcionistaHomePage() {
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Pacientes Recientes</h3>
           <div className="space-y-3">
-            {pacientes.slice(0, 5).map(paciente => (
+            {(Array.isArray(pacientes) ? pacientes : []).slice(0, 5).map(paciente => (
               <div key={paciente.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                 <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold">
                   {paciente.usuario?.nombre?.charAt(0)?.toUpperCase() || 'P'}

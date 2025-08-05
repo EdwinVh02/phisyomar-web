@@ -25,6 +25,7 @@ export const useToast = () => {
   const showError = (message) => addToast(message, 'error');
   const showWarning = (message) => addToast(message, 'warning');
   const showInfo = (message) => addToast(message, 'info');
+  const showToast = (message, type = 'info') => addToast(message, type);
 
   return {
     toasts,
@@ -33,6 +34,7 @@ export const useToast = () => {
     showSuccess,
     showError,
     showWarning,
-    showInfo
+    showInfo,
+    showToast
   };
 };
