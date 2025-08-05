@@ -14,9 +14,9 @@ export const getHistoriales = async () => {
 export const getMiHistorialMedico = async () => {
   try {
     console.log('🔍 Obteniendo mi historial médico...');
-    const response = await api.get('/paciente/mi-historial-medico');
+    const response = await api.get('/paciente/mi-historial');
     console.log('✅ Mi historial obtenido:', response.data);
-    return response.data?.data || response.data || [];
+    return response.data || [];
   } catch (error) {
     console.error('❌ Error al obtener mi historial:', error);
     throw new Error(error.response?.data?.message || 'Error al obtener mi historial médico');
@@ -60,5 +60,35 @@ export const deleteHistorial = async (id) => {
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Error al eliminar historial');
+  }
+};
+
+// Actualizar historial como terapeuta
+export const updateHistorialTerapeuta = async (pacienteId, historialData) => {
+  try {
+    const response = await api.put(`/terapeuta/pacientes/${pacienteId}/historial-medico`, historialData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al actualizar historial médico');
+  }
+};
+
+// Crear historial como terapeuta
+export const createHistorialTerapeuta = async (pacienteId, historialData) => {
+  try {
+    const response = await api.post(`/terapeuta/pacientes/${pacienteId}/historial-medico`, historialData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al crear historial médico');
+  }
+};
+
+// Obtener pacientes para terapeutas
+export const getMisPacientes = async () => {
+  try {
+    const response = await api.get('/terapeuta/mis-pacientes');
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Error al obtener pacientes');
   }
 };
